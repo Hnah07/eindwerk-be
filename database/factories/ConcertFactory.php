@@ -16,8 +16,11 @@ class ConcertFactory extends Factory
      */
     public function definition(): array
     {
+        //return fake concerts
         return [
-            //
+            'name' => $this->faker->name,
+            'description' => $this->faker->sentence,
+            'date' => $this->faker->date
         ];
     }
 }
