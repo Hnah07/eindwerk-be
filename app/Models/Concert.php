@@ -9,4 +9,10 @@ class Concert extends Model
 {
     /** @use HasFactory<\Database\Factories\ConcertFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'description',
+        'date'
+    ];
 }
