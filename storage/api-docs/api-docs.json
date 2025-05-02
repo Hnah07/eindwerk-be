@@ -13,6 +13,29 @@
                 ],
                 "summary": "Get all concerts",
                 "operationId": "7fe55002e3b7e386dc418344a9942fbb",
+                "parameters": [
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "description": "Filter concerts by date (format: YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        },
+                        "example": "2024-03-20"
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Sort concerts by field (name, date) and direction (asc, desc). Example: date:desc",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "date:desc"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "List of concerts",
@@ -23,17 +46,21 @@
                                     "items": {
                                         "properties": {
                                             "id": {
-                                                "type": "integer"
+                                                "type": "integer",
+                                                "example": 1
                                             },
                                             "name": {
-                                                "type": "string"
+                                                "type": "string",
+                                                "example": "Summer Festival 2024"
                                             },
                                             "description": {
-                                                "type": "text"
+                                                "type": "string",
+                                                "example": "A fantastic summer music festival with multiple stages"
                                             },
                                             "date": {
                                                 "type": "string",
-                                                "format": "date"
+                                                "format": "date",
+                                                "example": "2024-07-15"
                                             }
                                         },
                                         "type": "object"
@@ -65,7 +92,7 @@
                                         "type": "string"
                                     },
                                     "description": {
-                                        "type": "text"
+                                        "type": "string"
                                     },
                                     "date": {
                                         "type": "string",
@@ -91,7 +118,7 @@
                                             "type": "string"
                                         },
                                         "description": {
-                                            "type": "text"
+                                            "type": "string"
                                         },
                                         "date": {
                                             "type": "string",
@@ -102,6 +129,9 @@
                                 }
                             }
                         }
+                    },
+                    "422": {
+                        "description": "Validation error"
                     }
                 }
             }
@@ -138,7 +168,7 @@
                                             "type": "string"
                                         },
                                         "description": {
-                                            "type": "text"
+                                            "type": "string"
                                         },
                                         "date": {
                                             "type": "string",
@@ -182,7 +212,7 @@
                                         "type": "string"
                                     },
                                     "description": {
-                                        "type": "text"
+                                        "type": "string"
                                     },
                                     "date": {
                                         "type": "string",
@@ -208,7 +238,7 @@
                                             "type": "string"
                                         },
                                         "description": {
-                                            "type": "text"
+                                            "type": "string"
                                         },
                                         "date": {
                                             "type": "string",
@@ -222,6 +252,9 @@
                     },
                     "404": {
                         "description": "Concert not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
                     }
                 }
             },

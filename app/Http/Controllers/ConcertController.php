@@ -19,6 +19,22 @@ class ConcertController extends Controller
      *     path="/api/concerts",
      *     summary="Get all concerts",
      *     tags={"Concerts"},
+     *     @OA\Parameter(
+     *         name="date",
+     *         in="query",
+     *         description="Filter concerts by date (format: YYYY-MM-DD)",
+     *         required=false,
+     *         @OA\Schema(type="string", format="date"),
+     *         example="2024-03-20"
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort",
+     *         in="query",
+     *         description="Sort concerts by field (name, date) and direction (asc, desc). Example: date:desc",
+     *         required=false,
+     *         @OA\Schema(type="string"),
+     *         example="date:desc"
+     *     ),
      *     @OA\Response(
      *         response=200,
      *         description="List of concerts",
@@ -26,19 +42,41 @@ class ConcertController extends Controller
      *             type="array",
      *             @OA\Items(
      *                 type="object",
-     *                 @OA\Property(property="id", type="integer"),
-     *                 @OA\Property(property="name", type="string"),
-     *                 @OA\Property(property="description", type="text"),
-     *                 @OA\Property(property="date", type="string", format="date")
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Summer Festival 2024"),
+     *                 @OA\Property(property="description", type="string", example="A fantastic summer music festival with multiple stages"),
+     *                 @OA\Property(property="date", type="string", format="date", example="2024-07-15")
      *             )
      *         )
      *     )
      * )
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Concert::all();
-        // beschikbaar door die use te gebruiken vanboven
+        $query = Concert::query();
+
+        // Filter by date if provided
+        if ($request->has('date')) {
+            $query->whereDate('date', $request->date);
+        }
+
+        // Handle sorting
+        if ($request->has('sort')) {
+            $sortParts = explode(':', $request->sort);
+            $field = $sortParts[0];
+            $direction = $sortParts[1] ?? 'asc';
+
+            // Validate field and direction
+            if (in_array($field, ['name', 'date']) && in_array($direction, ['asc', 'desc'])) {
+                $query->orderBy($field, $direction);
+            }
+        } else {
+            // Default sorting by date ascending
+            $query->orderBy('date', 'asc');
+        }
+
+        $concerts = $query->get();
+        return response()->json($concerts, 200);
     }
 
     /**
@@ -51,7 +89,7 @@ class ConcertController extends Controller
      *         @OA\JsonContent(
      *             required={"name", "description", "date"},
      *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="description", type="text"),
+     *             @OA\Property(property="description", type="string"),
      *             @OA\Property(property="date", type="string", format="date")
      *         )
      *     ),
@@ -62,15 +100,26 @@ class ConcertController extends Controller
      *             type="object",
      *             @OA\Property(property="id", type="integer"),
      *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="description", type="text"),
+     *             @OA\Property(property="description", type="string"),
      *             @OA\Property(property="date", type="string", format="date")
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error"
      *     )
      * )
      */
     public function store(Request $request)
     {
-        return Concert::create($request->all());
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'date' => 'required|date'
+        ]);
+
+        $concert = Concert::create($validated);
+        return response()->json($concert, 201);
     }
 
     /**
@@ -92,7 +141,7 @@ class ConcertController extends Controller
      *             type="object",
      *             @OA\Property(property="id", type="integer"),
      *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="description", type="text"),
+     *             @OA\Property(property="description", type="string"),
      *             @OA\Property(property="date", type="string", format="date")
      *         )
      *     ),
@@ -104,7 +153,13 @@ class ConcertController extends Controller
      */
     public function show(string $id)
     {
-        return Concert::find($id);
+        $concert = Concert::find($id);
+
+        if (!$concert) {
+            return response()->json(['message' => 'Concert not found'], 404);
+        }
+
+        return response()->json($concert, 200);
     }
 
     /**
@@ -123,7 +178,7 @@ class ConcertController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="description", type="text"),
+     *             @OA\Property(property="description", type="string"),
      *             @OA\Property(property="date", type="string", format="date")
      *         )
      *     ),
@@ -134,21 +189,36 @@ class ConcertController extends Controller
      *             type="object",
      *             @OA\Property(property="id", type="integer"),
      *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="description", type="text"),
+     *             @OA\Property(property="description", type="string"),
      *             @OA\Property(property="date", type="string", format="date")
      *         )
      *     ),
      *     @OA\Response(
      *         response=404,
      *         description="Concert not found"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error"
      *     )
      * )
      */
     public function update(Request $request, string $id)
     {
         $concert = Concert::find($id);
-        $concert->update($request->all());
-        return $concert;
+
+        if (!$concert) {
+            return response()->json(['message' => 'Concert not found'], 404);
+        }
+
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'description' => 'sometimes|string',
+            'date' => 'sometimes|date'
+        ]);
+
+        $concert->update($validated);
+        return response()->json($concert, 200);
     }
 
     /**
@@ -176,6 +246,11 @@ class ConcertController extends Controller
     public function destroy(string $id)
     {
         $concert = Concert::find($id);
+
+        if (!$concert) {
+            return response()->json(['message' => 'Concert not found'], 404);
+        }
+
         $concert->delete();
         return response()->json(null, 204);
     }
