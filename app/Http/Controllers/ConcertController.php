@@ -30,10 +30,26 @@ class ConcertController extends Controller
      *     @OA\Parameter(
      *         name="date",
      *         in="query",
-     *         description="Filter concerts by date (format: YYYY-MM-DD)",
+     *         description="Filter concerts by specific date (format: YYYY-MM-DD)",
      *         required=false,
      *         @OA\Schema(type="string", format="date"),
      *         example="2024-03-20"
+     *     ),
+     *     @OA\Parameter(
+     *         name="from_date",
+     *         in="query",
+     *         description="Filter concerts from this date onwards (format: YYYY-MM-DD)",
+     *         required=false,
+     *         @OA\Schema(type="string", format="date"),
+     *         example="2025-06-01"
+     *     ),
+     *     @OA\Parameter(
+     *         name="to_date",
+     *         in="query",
+     *         description="Filter concerts up to this date (format: YYYY-MM-DD)",
+     *         required=false,
+     *         @OA\Schema(type="string", format="date"),
+     *         example="2025-12-31"
      *     ),
      *     @OA\Parameter(
      *         name="sort",
@@ -69,6 +85,14 @@ class ConcertController extends Controller
 
         if ($request->has('date')) {
             $query->whereDate('date', $request->date);
+        }
+
+        if ($request->has('from_date')) {
+            $query->whereDate('date', '>=', $request->from_date);
+        }
+
+        if ($request->has('to_date')) {
+            $query->whereDate('date', '<=', $request->to_date);
         }
 
         if ($request->has('sort')) {
