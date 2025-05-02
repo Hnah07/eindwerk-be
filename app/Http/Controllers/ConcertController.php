@@ -20,6 +20,14 @@ class ConcertController extends Controller
      *     summary="Get all concerts",
      *     tags={"Concerts"},
      *     @OA\Parameter(
+     *         name="name",
+     *         in="query",
+     *         description="Search concerts by name (partial match)",
+     *         required=false,
+     *         @OA\Schema(type="string"),
+     *         example="Metallica"
+     *     ),
+     *     @OA\Parameter(
      *         name="date",
      *         in="query",
      *         description="Filter concerts by date (format: YYYY-MM-DD)",
@@ -55,23 +63,23 @@ class ConcertController extends Controller
     {
         $query = Concert::query();
 
-        // Filter by date if provided
+        if ($request->has('name')) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
         if ($request->has('date')) {
             $query->whereDate('date', $request->date);
         }
 
-        // Handle sorting
         if ($request->has('sort')) {
             $sortParts = explode(':', $request->sort);
             $field = $sortParts[0];
             $direction = $sortParts[1] ?? 'asc';
 
-            // Validate field and direction
             if (in_array($field, ['name', 'date']) && in_array($direction, ['asc', 'desc'])) {
                 $query->orderBy($field, $direction);
             }
         } else {
-            // Default sorting by date ascending
             $query->orderBy('date', 'asc');
         }
 
