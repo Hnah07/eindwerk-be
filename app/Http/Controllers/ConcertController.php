@@ -79,23 +79,23 @@ class ConcertController extends Controller
     {
         $query = Concert::query();
 
-        if ($request->has('name')) {
+        if ($request->filled('name')) {
             $query->where('name', 'like', '%' . $request->name . '%');
         }
 
-        if ($request->has('date')) {
+        if ($request->filled('date')) {
             $query->whereDate('date', $request->date);
         }
 
-        if ($request->has('from_date')) {
+        if ($request->filled('from_date')) {
             $query->whereDate('date', '>=', $request->from_date);
         }
 
-        if ($request->has('to_date')) {
+        if ($request->filled('to_date')) {
             $query->whereDate('date', '<=', $request->to_date);
         }
 
-        if ($request->has('sort')) {
+        if ($request->filled('sort')) {
             $sortParts = explode(':', $request->sort);
             $field = $sortParts[0];
             $direction = $sortParts[1] ?? 'asc';
