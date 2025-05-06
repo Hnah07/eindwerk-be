@@ -120,9 +120,29 @@ class ConcertController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"name", "description", "date"},
-     *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="description", type="string"),
-     *             @OA\Property(property="date", type="string", format="date")
+     *             @OA\Property(
+     *                 property="name",
+     *                 type="string",
+     *                 description="Name of the concert",
+     *                 example="Summer Festival 2024",
+     *                 minLength=3,
+     *                 maxLength=255
+     *             ),
+     *             @OA\Property(
+     *                 property="description",
+     *                 type="string",
+     *                 description="Detailed description of the concert including venue, artists, and other important information",
+     *                 example="A fantastic summer music festival with multiple stages featuring top artists from around the world. The event will include food vendors, merchandise stands, and VIP areas.",
+     *                 minLength=10
+     *             ),
+     *             @OA\Property(
+     *                 property="date",
+     *                 type="string",
+     *                 format="date",
+     *                 description="Date of the concert in YYYY-MM-DD format",
+     *                 example="1970-08-15",
+     *                 pattern="^\d{4}-\d{2}-\d{2}$"
+     *             )
      *         )
      *     ),
      *     @OA\Response(
@@ -130,23 +150,52 @@ class ConcertController extends Controller
      *         description="Concert created successfully",
      *         @OA\JsonContent(
      *             type="object",
-     *             @OA\Property(property="id", type="integer"),
-     *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="description", type="string"),
-     *             @OA\Property(property="date", type="string", format="date")
+     *             @OA\Property(property="id", type="integer", example=1),
+     *             @OA\Property(property="name", type="string", example="Summer Festival 2024"),
+     *             @OA\Property(property="description", type="string", example="A fantastic summer music festival with multiple stages"),
+     *             @OA\Property(property="date", type="string", format="date", example="1970-08-15"),
+     *             @OA\Property(property="created_at", type="string", format="date-time", example="2024-03-20T10:00:00Z"),
+     *             @OA\Property(property="updated_at", type="string", format="date-time", example="2024-03-20T10:00:00Z")
      *         )
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Validation error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="The given data was invalid."
+     *             ),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="name",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The name field is required.")
+     *                 ),
+     *                 @OA\Property(
+     *                     property="description",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The description field is required.")
+     *                 ),
+     *                 @OA\Property(
+     *                     property="date",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The date field is required.")
+     *                 )
+     *             )
+     *         )
      *     )
      * )
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
+            'name' => 'required|string|min:3|max:255',
+            'description' => 'required|string|min:10',
             'date' => 'required|date'
         ]);
 

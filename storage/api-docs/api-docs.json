@@ -15,15 +15,47 @@
                 "operationId": "7fe55002e3b7e386dc418344a9942fbb",
                 "parameters": [
                     {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Search concerts by name (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "Metallica"
+                    },
+                    {
                         "name": "date",
                         "in": "query",
-                        "description": "Filter concerts by date (format: YYYY-MM-DD)",
+                        "description": "Filter concerts by specific date (format: YYYY-MM-DD)",
                         "required": false,
                         "schema": {
                             "type": "string",
                             "format": "date"
                         },
                         "example": "2024-03-20"
+                    },
+                    {
+                        "name": "from_date",
+                        "in": "query",
+                        "description": "Filter concerts from this date onwards (format: YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        },
+                        "example": "2025-06-01"
+                    },
+                    {
+                        "name": "to_date",
+                        "in": "query",
+                        "description": "Filter concerts up to this date (format: YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        },
+                        "example": "2025-12-31"
                     },
                     {
                         "name": "sort",
@@ -89,14 +121,24 @@
                                 ],
                                 "properties": {
                                     "name": {
-                                        "type": "string"
+                                        "description": "Name of the concert",
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "minLength": 3,
+                                        "example": "Summer Festival 2024"
                                     },
                                     "description": {
-                                        "type": "string"
+                                        "description": "Detailed description of the concert including venue, artists, and other important information",
+                                        "type": "string",
+                                        "minLength": 10,
+                                        "example": "A fantastic summer music festival with multiple stages featuring top artists from around the world. The event will include food vendors, merchandise stands, and VIP areas."
                                     },
                                     "date": {
+                                        "description": "Date of the concert in YYYY-MM-DD format",
                                         "type": "string",
-                                        "format": "date"
+                                        "format": "date",
+                                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                                        "example": "1970-08-15"
                                     }
                                 },
                                 "type": "object"
@@ -112,17 +154,31 @@
                                 "schema": {
                                     "properties": {
                                         "id": {
-                                            "type": "integer"
+                                            "type": "integer",
+                                            "example": 1
                                         },
                                         "name": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "example": "Summer Festival 2024"
                                         },
                                         "description": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "example": "A fantastic summer music festival with multiple stages"
                                         },
                                         "date": {
                                             "type": "string",
-                                            "format": "date"
+                                            "format": "date",
+                                            "example": "1970-08-15"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2024-03-20T10:00:00Z"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2024-03-20T10:00:00Z"
                                         }
                                     },
                                     "type": "object"
@@ -131,7 +187,46 @@
                         }
                     },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "name": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The name field is required."
+                                                    }
+                                                },
+                                                "description": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The description field is required."
+                                                    }
+                                                },
+                                                "date": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The date field is required."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }
