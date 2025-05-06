@@ -315,7 +315,7 @@ class ConcertController extends Controller
      *         @OA\Schema(type="integer")
      *     ),
      *     @OA\Response(
-     *         response=204,
+     *         response=200,
      *         description="Concert deleted successfully"
      *     ),
      *     @OA\Response(
@@ -333,6 +333,6 @@ class ConcertController extends Controller
         }
 
         $concert->delete();
-        return response()->json(null, 204);
+        return response()->json(['message' => 'Concert successfully deleted'], 200);
     }
 }
