@@ -119,7 +119,9 @@ class ConcertResource extends Resource
                 Tables\Columns\TextColumn::make('occurrences.date')
                     ->label('Date')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->formatStateUsing(fn($state) => $state ? date('d/m/Y', strtotime($state)) : '-')
+                    ->listWithLineBreaks(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
@@ -143,6 +145,24 @@ class ConcertResource extends Resource
                             ->when(
                                 $data['year'],
                                 fn(Builder $query, $year): Builder => $query->where('year', $year),
+                            );
+                    }),
+                Tables\Filters\Filter::make('date')
+                    ->form([
+                        Forms\Components\DatePicker::make('date_from')
+                            ->label('From'),
+                        Forms\Components\DatePicker::make('date_to')
+                            ->label('To'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['date_from'],
+                                fn(Builder $query, $date): Builder => $query->whereHas('occurrences', fn($q) => $q->where('date', '>=', $date))
+                            )
+                            ->when(
+                                $data['date_to'],
+                                fn(Builder $query, $date): Builder => $query->whereHas('occurrences', fn($q) => $q->where('date', '<=', $date))
                             );
                     }),
                 Tables\Filters\SelectFilter::make('location')
