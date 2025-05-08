@@ -52,6 +52,35 @@
                         "example": "festival"
                     },
                     {
+                        "name": "location_name",
+                        "in": "query",
+                        "description": "Filter by location name (case-insensitive partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "date_from",
+                        "in": "query",
+                        "description": "Filter concerts from this date (format: Y-m-d)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "date_to",
+                        "in": "query",
+                        "description": "Filter concerts until this date (format: Y-m-d)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
                         "name": "sort",
                         "in": "query",
                         "description": "Sort concerts by field (name, year) and direction (asc, desc). Example: year:desc",
@@ -68,32 +97,66 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "properties": {
-                                            "id": {
-                                                "type": "integer",
-                                                "example": 1
-                                            },
-                                            "name": {
-                                                "type": "string",
-                                                "example": "Summer Festival 2024"
-                                            },
-                                            "description": {
-                                                "type": "string",
-                                                "example": "A fantastic summer music festival with multiple stages"
-                                            },
-                                            "year": {
-                                                "type": "integer",
-                                                "example": 2024
-                                            },
-                                            "type": {
-                                                "type": "string",
-                                                "example": "festival"
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Summer Festival 2024"
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "example": "A fantastic summer music festival"
+                                                    },
+                                                    "year": {
+                                                        "type": "integer",
+                                                        "example": 2024
+                                                    },
+                                                    "type": {
+                                                        "type": "string",
+                                                        "example": "festival"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "locations": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 1
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "Main Stage"
+                                                                },
+                                                                "date": {
+                                                                    "type": "string",
+                                                                    "format": "date-time",
+                                                                    "example": "2024-03-20T19:00:00Z"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
                                             }
-                                        },
-                                        "type": "object"
-                                    }
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
@@ -115,7 +178,9 @@
                                     "name",
                                     "description",
                                     "year",
-                                    "type"
+                                    "type",
+                                    "location_id",
+                                    "date"
                                 ],
                                 "properties": {
                                     "name": {
@@ -126,10 +191,10 @@
                                         "example": "Summer Festival 2024"
                                     },
                                     "description": {
-                                        "description": "Detailed description of the concert including venue, artists, and other important information",
+                                        "description": "Detailed description of the concert",
                                         "type": "string",
                                         "minLength": 10,
-                                        "example": "A fantastic summer music festival with multiple stages featuring top artists from around the world. The event will include food vendors, merchandise stands, and VIP areas."
+                                        "example": "A fantastic summer music festival with multiple stages"
                                     },
                                     "year": {
                                         "description": "Year of the concert",
@@ -147,6 +212,17 @@
                                             "theater show"
                                         ],
                                         "example": "festival"
+                                    },
+                                    "location_id": {
+                                        "description": "ID of the location where the concert will take place",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "date": {
+                                        "description": "Date and time of the concert",
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-03-20T19:00:00Z"
                                     }
                                 },
                                 "type": "object"
@@ -161,81 +237,39 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "id": {
-                                            "type": "integer",
-                                            "example": 1
-                                        },
-                                        "name": {
-                                            "type": "string",
-                                            "example": "Summer Festival 2024"
-                                        },
-                                        "description": {
-                                            "type": "string",
-                                            "example": "A fantastic summer music festival with multiple stages"
-                                        },
-                                        "year": {
-                                            "type": "integer",
-                                            "example": 2024
-                                        },
-                                        "type": {
-                                            "type": "string",
-                                            "example": "festival"
-                                        },
-                                        "created_at": {
-                                            "type": "string",
-                                            "format": "date-time",
-                                            "example": "2024-03-20T10:00:00Z"
-                                        },
-                                        "updated_at": {
-                                            "type": "string",
-                                            "format": "date-time",
-                                            "example": "2024-03-20T10:00:00Z"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "The given data was invalid."
+                                            "example": "Concert created successfully"
                                         },
-                                        "errors": {
+                                        "data": {
                                             "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
                                                 "name": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string",
-                                                        "example": "The name field is required."
-                                                    }
+                                                    "type": "string",
+                                                    "example": "Summer Festival 2024"
                                                 },
                                                 "description": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string",
-                                                        "example": "The description field is required."
-                                                    }
+                                                    "type": "string",
+                                                    "example": "A fantastic summer music festival"
                                                 },
                                                 "year": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string",
-                                                        "example": "The year field is required."
-                                                    }
+                                                    "type": "integer",
+                                                    "example": 2024
                                                 },
                                                 "type": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string",
-                                                        "example": "The type field is required."
-                                                    }
+                                                    "type": "string",
+                                                    "example": "festival"
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
                                                 }
                                             },
                                             "type": "object"
@@ -245,6 +279,9 @@
                                 }
                             }
                         }
+                    },
+                    "422": {
+                        "description": "Validation error"
                     }
                 }
             }
