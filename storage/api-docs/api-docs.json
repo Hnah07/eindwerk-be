@@ -411,6 +411,513 @@
                 }
             }
         },
+        "/api/locations": {
+            "get": {
+                "tags": [
+                    "Locations"
+                ],
+                "summary": "Get all locations",
+                "operationId": "c22aa1cae7ab2b2ad315141d06fec369",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search locations by name, city, country",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of locations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "example": "Royal Concert Hall"
+                                            },
+                                            "longitude": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": 4.4041
+                                            },
+                                            "latitude": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": 51.2194
+                                            },
+                                            "street": {
+                                                "type": "string",
+                                                "example": "Koningstraat"
+                                            },
+                                            "housenr": {
+                                                "type": "string",
+                                                "example": "10"
+                                            },
+                                            "zipcode": {
+                                                "type": "string",
+                                                "example": "2000"
+                                            },
+                                            "city": {
+                                                "type": "string",
+                                                "example": "Antwerp"
+                                            },
+                                            "website": {
+                                                "type": "string",
+                                                "format": "uri",
+                                                "example": "https://www.royalconcerthall.be",
+                                                "nullable": true
+                                            },
+                                            "country": {
+                                                "type": "string",
+                                                "example": "Belgium"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Locations"
+                ],
+                "summary": "Create a new location",
+                "operationId": "055665bfbdc18cab3dc956925a9000b4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "longitude",
+                                    "latitude",
+                                    "street",
+                                    "housenr",
+                                    "zipcode",
+                                    "city",
+                                    "country"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "description": "Name of the location (required)",
+                                        "type": "string",
+                                        "example": "Royal Concert Hall"
+                                    },
+                                    "longitude": {
+                                        "description": "Longitude coordinate (required)",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 4.4041
+                                    },
+                                    "latitude": {
+                                        "description": "Latitude coordinate (required)",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 51.2194
+                                    },
+                                    "street": {
+                                        "description": "Street name (required)",
+                                        "type": "string",
+                                        "example": "Koningstraat"
+                                    },
+                                    "housenr": {
+                                        "description": "House number (required)",
+                                        "type": "string",
+                                        "example": "10"
+                                    },
+                                    "zipcode": {
+                                        "description": "ZIP/Postal code (required)",
+                                        "type": "string",
+                                        "example": "2000"
+                                    },
+                                    "city": {
+                                        "description": "City name (required)",
+                                        "type": "string",
+                                        "example": "Antwerp"
+                                    },
+                                    "website": {
+                                        "description": "Website URL (optional)",
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://www.royalconcerthall.be",
+                                        "nullable": true
+                                    },
+                                    "country": {
+                                        "description": "Country name (required)",
+                                        "type": "string",
+                                        "example": "Belgium"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Location created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "example": "Royal Concert Hall"
+                                        },
+                                        "longitude": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 4.4041
+                                        },
+                                        "latitude": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 51.2194
+                                        },
+                                        "street": {
+                                            "type": "string",
+                                            "example": "Koningstraat"
+                                        },
+                                        "housenr": {
+                                            "type": "string",
+                                            "example": "10"
+                                        },
+                                        "zipcode": {
+                                            "type": "string",
+                                            "example": "2000"
+                                        },
+                                        "city": {
+                                            "type": "string",
+                                            "example": "Antwerp"
+                                        },
+                                        "website": {
+                                            "type": "string",
+                                            "format": "uri",
+                                            "example": "https://www.royalconcerthall.be",
+                                            "nullable": true
+                                        },
+                                        "country": {
+                                            "type": "string",
+                                            "example": "Belgium"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "name": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The name field is required."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/locations/{id}": {
+            "get": {
+                "tags": [
+                    "Locations"
+                ],
+                "summary": "Get a specific location",
+                "operationId": "bcaac2b6f85e83cdc99139be535c66e6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Location ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Location details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "example": "Royal Concert Hall"
+                                        },
+                                        "longitude": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 4.4041
+                                        },
+                                        "latitude": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 51.2194
+                                        },
+                                        "street": {
+                                            "type": "string",
+                                            "example": "Koningstraat"
+                                        },
+                                        "housenr": {
+                                            "type": "string",
+                                            "example": "10"
+                                        },
+                                        "zipcode": {
+                                            "type": "string",
+                                            "example": "2000"
+                                        },
+                                        "city": {
+                                            "type": "string",
+                                            "example": "Antwerp"
+                                        },
+                                        "website": {
+                                            "type": "string",
+                                            "format": "uri",
+                                            "example": "https://www.royalconcerthall.be",
+                                            "nullable": true
+                                        },
+                                        "country": {
+                                            "type": "string",
+                                            "example": "Belgium"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Location not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Locations"
+                ],
+                "summary": "Update a location",
+                "operationId": "3ac5d4120b6fb23f55f179649493a2d8",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Location ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "description": "Name of the location (optional)",
+                                        "type": "string",
+                                        "example": "Royal Concert Hall"
+                                    },
+                                    "longitude": {
+                                        "description": "Longitude coordinate (optional)",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 4.4041
+                                    },
+                                    "latitude": {
+                                        "description": "Latitude coordinate (optional)",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 51.2194
+                                    },
+                                    "street": {
+                                        "description": "Street name (optional)",
+                                        "type": "string",
+                                        "example": "Koningstraat"
+                                    },
+                                    "housenr": {
+                                        "description": "House number (optional)",
+                                        "type": "string",
+                                        "example": "10"
+                                    },
+                                    "zipcode": {
+                                        "description": "ZIP/Postal code (optional)",
+                                        "type": "string",
+                                        "example": "2000"
+                                    },
+                                    "city": {
+                                        "description": "City name (optional)",
+                                        "type": "string",
+                                        "example": "Antwerp"
+                                    },
+                                    "website": {
+                                        "description": "Website URL (optional)",
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://www.royalconcerthall.be",
+                                        "nullable": true
+                                    },
+                                    "country": {
+                                        "description": "Country name (optional)",
+                                        "type": "string",
+                                        "example": "Belgium"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Location updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "example": "Royal Concert Hall"
+                                        },
+                                        "longitude": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 4.4041
+                                        },
+                                        "latitude": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 51.2194
+                                        },
+                                        "street": {
+                                            "type": "string",
+                                            "example": "Koningstraat"
+                                        },
+                                        "housenr": {
+                                            "type": "string",
+                                            "example": "10"
+                                        },
+                                        "zipcode": {
+                                            "type": "string",
+                                            "example": "2000"
+                                        },
+                                        "city": {
+                                            "type": "string",
+                                            "example": "Antwerp"
+                                        },
+                                        "website": {
+                                            "type": "string",
+                                            "format": "uri",
+                                            "example": "https://www.royalconcerthall.be",
+                                            "nullable": true
+                                        },
+                                        "country": {
+                                            "type": "string",
+                                            "example": "Belgium"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Location not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Locations"
+                ],
+                "summary": "Delete a location",
+                "operationId": "721591ee086203214e6eb54f25625656",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Location ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Location deleted successfully"
+                    },
+                    "404": {
+                        "description": "Location not found"
+                    }
+                }
+            }
+        },
         "/api/users": {
             "get": {
                 "tags": [
@@ -554,6 +1061,10 @@
         {
             "name": "Concerts",
             "description": "Concerts"
+        },
+        {
+            "name": "Locations",
+            "description": "Locations"
         },
         {
             "name": "Users",
