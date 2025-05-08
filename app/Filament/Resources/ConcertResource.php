@@ -23,9 +23,26 @@ class ConcertResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')->required()->maxLength(255),
-                Forms\Components\TextInput::make('date')->required(),
-                Forms\Components\Textarea::make('description')->required()->maxLength(65535)
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('year')
+                    ->required()
+                    ->numeric()
+                    ->minValue(1900)
+                    ->maxValue(2100),
+                Forms\Components\Select::make('type')
+                    ->required()
+                    ->options([
+                        'concert' => 'Concert',
+                        'festival' => 'Festival',
+                        'dj set' => 'DJ Set',
+                        'club show' => 'Club Show',
+                        'theater show' => 'Theater Show',
+                    ]),
+                Forms\Components\Textarea::make('description')
+                    ->required()
+                    ->maxLength(65535)
             ]);
     }
 
@@ -33,14 +50,44 @@ class ConcertResource extends Resource
     {
         return $table
             ->columns([
-                //
-                Tables\Columns\TextColumn::make('id')->sortable()->searchable(),
-                Tables\Columns\TextColumn::make('name')->sortable()->searchable(),
-                Tables\Columns\TextColumn::make('date')->sortable()->searchable(),
-                Tables\Columns\TextColumn::make('description'),
+                Tables\Columns\TextColumn::make('id')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('name')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('year')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('type')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('description')
+                    ->limit(50),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('type')
+                    ->options([
+                        'concert' => 'Concert',
+                        'festival' => 'Festival',
+                        'dj set' => 'DJ Set',
+                        'club show' => 'Club Show',
+                        'theater show' => 'Theater Show',
+                    ]),
+                Tables\Filters\Filter::make('year')
+                    ->form([
+                        Forms\Components\TextInput::make('year')
+                            ->numeric()
+                            ->minValue(1900)
+                            ->maxValue(2100),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['year'],
+                                fn(Builder $query, $year): Builder => $query->where('year', $year),
+                            );
+                    })
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
