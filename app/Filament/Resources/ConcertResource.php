@@ -125,7 +125,8 @@ class ConcertResource extends Resource
                         'dj set' => 'DJ Set',
                         'club show' => 'Club Show',
                         'theater show' => 'Theater Show',
-                    ]),
+                    ])
+                    ->multiple(),
                 Tables\Filters\Filter::make('year')
                     ->form([
                         Forms\Components\TextInput::make('year')
