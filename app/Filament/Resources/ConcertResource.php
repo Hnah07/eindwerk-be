@@ -139,7 +139,12 @@ class ConcertResource extends Resource
                                 $data['year'],
                                 fn(Builder $query, $year): Builder => $query->where('year', $year),
                             );
-                    })
+                    }),
+                Tables\Filters\SelectFilter::make('location')
+                    ->relationship('locations', 'name')
+                    ->multiple()
+                    ->preload() // load all locations by refreshing the page, remove when there are too many locations
+                    ->searchable()
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
