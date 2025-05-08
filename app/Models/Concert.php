@@ -13,6 +13,14 @@ class Concert extends Model
     protected $fillable = [
         'name',
         'description',
-        'date'
+        'year',
+        'type'
     ];
+
+    public function locations()
+    {
+        return $this->belongsToMany(Location::class, 'concert_occurrences')
+            ->withPivot('date')
+            ->withTimestamps();
+    }
 }
