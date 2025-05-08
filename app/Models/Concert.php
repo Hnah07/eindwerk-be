@@ -23,4 +23,9 @@ class Concert extends Model
             ->withPivot('date')
             ->withTimestamps();
     }
+
+    public function occurrences()
+    {
+        return $this->hasMany(ConcertOccurrence::class);
+    }
 }

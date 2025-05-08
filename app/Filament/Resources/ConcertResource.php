@@ -42,7 +42,51 @@ class ConcertResource extends Resource
                     ]),
                 Forms\Components\Textarea::make('description')
                     ->required()
-                    ->maxLength(65535)
+                    ->maxLength(65535),
+                Forms\Components\Select::make('location_id')
+                    ->relationship('locations', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->createOptionForm([
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('street')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('housenr')
+                            ->required()
+                            ->maxLength(10),
+                        Forms\Components\TextInput::make('zipcode')
+                            ->required()
+                            ->maxLength(20),
+                        Forms\Components\TextInput::make('city')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('country')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('website')
+                            ->url()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('longitude')
+                            ->required()
+                            ->numeric()
+                            ->minValue(-180)
+                            ->maxValue(180),
+                        Forms\Components\TextInput::make('latitude')
+                            ->required()
+                            ->numeric()
+                            ->minValue(-90)
+                            ->maxValue(90),
+                    ]),
+                Forms\Components\Repeater::make('occurrences')
+                    ->relationship()
+                    ->schema([
+                        Forms\Components\DatePicker::make('date')
+                            ->required(),
+                    ])
+                    ->columns(2),
             ]);
     }
 
@@ -64,6 +108,14 @@ class ConcertResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('description')
                     ->limit(50),
+                Tables\Columns\TextColumn::make('locations.name')
+                    ->label('Location')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('occurrences.date')
+                    ->label('Date')
+                    ->sortable()
+                    ->searchable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
