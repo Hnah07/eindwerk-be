@@ -117,11 +117,33 @@ class ConcertResource extends Resource
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('occurrences.date')
-                    ->label('Date')
+                    ->label('Dates')
                     ->sortable()
                     ->searchable()
-                    ->formatStateUsing(fn($state) => $state ? date('d/m/Y', strtotime($state)) : '-')
-                    ->listWithLineBreaks(),
+                    ->formatStateUsing(function ($state, $record) {
+                        if (!$record->occurrences->count()) {
+                            return '-';
+                        }
+
+                        $firstDate = $record->occurrences
+                            ->sortBy('date')
+                            ->first();
+
+                        $totalDates = $record->occurrences->count();
+
+                        return date('d/m/Y', strtotime($firstDate->date)) .
+                            ' (' . $totalDates . ' ' . str('date')->plural($totalDates) . ')';
+                    })
+                    ->tooltip(function ($record) {
+                        if (!$record->occurrences->count()) {
+                            return null;
+                        }
+
+                        return $record->occurrences
+                            ->sortBy('date')
+                            ->map(fn($occurrence) => date('d/m/Y', strtotime($occurrence->date)))
+                            ->join("\n");
+                    }),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
