@@ -387,6 +387,39 @@
                 ],
                 "summary": "Get all users",
                 "operationId": "c457726701591d1183b53aa71fc13441",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Search users by name (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "John"
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "Search users by email (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "email"
+                        },
+                        "example": "john@example.com"
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Sort users by field (name, email, created_at) and direction (asc, desc). Example: name:asc",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "name:asc"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "List of users",

@@ -12,6 +12,30 @@ class UserController extends Controller
      *     path="/api/users",
      *     summary="Get all users",
      *     tags={"Users"},
+     *     @OA\Parameter(
+     *         name="name",
+     *         in="query",
+     *         description="Search users by name (partial match)",
+     *         required=false,
+     *         @OA\Schema(type="string"),
+     *         example="John"
+     *     ),
+     *     @OA\Parameter(
+     *         name="email",
+     *         in="query",
+     *         description="Search users by email (partial match)",
+     *         required=false,
+     *         @OA\Schema(type="string", format="email"),
+     *         example="john@example.com"
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort",
+     *         in="query",
+     *         description="Sort users by field (name, email, created_at) and direction (asc, desc). Example: name:asc",
+     *         required=false,
+     *         @OA\Schema(type="string"),
+     *         example="name:asc"
+     *     ),
      *     @OA\Response(
      *         response=200,
      *         description="List of users",
@@ -29,9 +53,31 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::all();
+        $query = User::query();
+
+        if ($request->filled('name')) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->filled('email')) {
+            $query->where('email', 'like', '%' . $request->email . '%');
+        }
+
+        if ($request->filled('sort')) {
+            $sortParts = explode(':', $request->sort);
+            $field = $sortParts[0];
+            $direction = $sortParts[1] ?? 'asc';
+
+            if (in_array($field, ['name', 'email', 'created_at']) && in_array($direction, ['asc', 'desc'])) {
+                $query->orderBy($field, $direction);
+            }
+        } else {
+            $query->orderBy('name', 'asc');
+        }
+
+        $users = $query->get();
         return response()->json($users);
     }
 
