@@ -28,36 +28,28 @@ class ConcertController extends Controller
      *         example="Metallica"
      *     ),
      *     @OA\Parameter(
-     *         name="date",
+     *         name="year",
      *         in="query",
-     *         description="Filter concerts by specific date (format: YYYY-MM-DD)",
+     *         description="Filter concerts by year",
      *         required=false,
-     *         @OA\Schema(type="string", format="date"),
-     *         example="2024-03-20"
+     *         @OA\Schema(type="integer"),
+     *         example="2024"
      *     ),
      *     @OA\Parameter(
-     *         name="from_date",
+     *         name="type",
      *         in="query",
-     *         description="Filter concerts from this date onwards (format: YYYY-MM-DD)",
+     *         description="Filter concerts by type",
      *         required=false,
-     *         @OA\Schema(type="string", format="date"),
-     *         example="2025-06-01"
-     *     ),
-     *     @OA\Parameter(
-     *         name="to_date",
-     *         in="query",
-     *         description="Filter concerts up to this date (format: YYYY-MM-DD)",
-     *         required=false,
-     *         @OA\Schema(type="string", format="date"),
-     *         example="2025-12-31"
+     *         @OA\Schema(type="string", enum={"concert", "festival", "dj set", "club show", "theater show"}),
+     *         example="festival"
      *     ),
      *     @OA\Parameter(
      *         name="sort",
      *         in="query",
-     *         description="Sort concerts by field (name, date) and direction (asc, desc). Example: date:desc",
+     *         description="Sort concerts by field (name, year) and direction (asc, desc). Example: year:desc",
      *         required=false,
      *         @OA\Schema(type="string"),
-     *         example="date:desc"
+     *         example="year:desc"
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -69,7 +61,8 @@ class ConcertController extends Controller
      *                 @OA\Property(property="id", type="integer", example=1),
      *                 @OA\Property(property="name", type="string", example="Summer Festival 2024"),
      *                 @OA\Property(property="description", type="string", example="A fantastic summer music festival with multiple stages"),
-     *                 @OA\Property(property="date", type="string", format="date", example="2024-07-15")
+     *                 @OA\Property(property="year", type="integer", example=2024),
+     *                 @OA\Property(property="type", type="string", example="festival")
      *             )
      *         )
      *     )
@@ -83,16 +76,12 @@ class ConcertController extends Controller
             $query->where('name', 'like', '%' . $request->name . '%');
         }
 
-        if ($request->filled('date')) {
-            $query->whereDate('date', $request->date);
+        if ($request->filled('year')) {
+            $query->where('year', $request->year);
         }
 
-        if ($request->filled('from_date')) {
-            $query->whereDate('date', '>=', $request->from_date);
-        }
-
-        if ($request->filled('to_date')) {
-            $query->whereDate('date', '<=', $request->to_date);
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
         }
 
         if ($request->filled('sort')) {
@@ -100,11 +89,11 @@ class ConcertController extends Controller
             $field = $sortParts[0];
             $direction = $sortParts[1] ?? 'asc';
 
-            if (in_array($field, ['name', 'date']) && in_array($direction, ['asc', 'desc'])) {
+            if (in_array($field, ['name', 'year']) && in_array($direction, ['asc', 'desc'])) {
                 $query->orderBy($field, $direction);
             }
         } else {
-            $query->orderBy('date', 'asc');
+            $query->orderBy('year', 'desc');
         }
 
         $concerts = $query->get();
@@ -119,7 +108,7 @@ class ConcertController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"name", "description", "date"},
+     *             required={"name", "description", "year", "type"},
      *             @OA\Property(
      *                 property="name",
      *                 type="string",
@@ -136,12 +125,17 @@ class ConcertController extends Controller
      *                 minLength=10
      *             ),
      *             @OA\Property(
-     *                 property="date",
+     *                 property="year",
+     *                 type="integer",
+     *                 description="Year of the concert",
+     *                 example=2024
+     *             ),
+     *             @OA\Property(
+     *                 property="type",
      *                 type="string",
-     *                 format="date",
-     *                 description="Date of the concert in YYYY-MM-DD format",
-     *                 example="1970-08-15",
-     *                 pattern="^\d{4}-\d{2}-\d{2}$"
+     *                 description="Type of the concert",
+     *                 enum={"concert", "festival", "dj set", "club show", "theater show"},
+     *                 example="festival"
      *             )
      *         )
      *     ),
@@ -153,7 +147,8 @@ class ConcertController extends Controller
      *             @OA\Property(property="id", type="integer", example=1),
      *             @OA\Property(property="name", type="string", example="Summer Festival 2024"),
      *             @OA\Property(property="description", type="string", example="A fantastic summer music festival with multiple stages"),
-     *             @OA\Property(property="date", type="string", format="date", example="1970-08-15"),
+     *             @OA\Property(property="year", type="integer", example=2024),
+     *             @OA\Property(property="type", type="string", example="festival"),
      *             @OA\Property(property="created_at", type="string", format="date-time", example="2024-03-20T10:00:00Z"),
      *             @OA\Property(property="updated_at", type="string", format="date-time", example="2024-03-20T10:00:00Z")
      *         )
@@ -182,9 +177,14 @@ class ConcertController extends Controller
      *                     @OA\Items(type="string", example="The description field is required.")
      *                 ),
      *                 @OA\Property(
-     *                     property="date",
+     *                     property="year",
      *                     type="array",
-     *                     @OA\Items(type="string", example="The date field is required.")
+     *                     @OA\Items(type="string", example="The year field is required.")
+     *                 ),
+     *                 @OA\Property(
+     *                     property="type",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The type field is required.")
      *                 )
      *             )
      *         )
@@ -196,7 +196,8 @@ class ConcertController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|min:3|max:255',
             'description' => 'required|string|min:10',
-            'date' => 'required|date'
+            'year' => 'required|integer|min:1900|max:2100',
+            'type' => 'required|string|in:concert,festival,dj set,club show,theater show'
         ]);
 
         $concert = Concert::create($validated);
@@ -223,7 +224,8 @@ class ConcertController extends Controller
      *             @OA\Property(property="id", type="integer"),
      *             @OA\Property(property="name", type="string"),
      *             @OA\Property(property="description", type="string"),
-     *             @OA\Property(property="date", type="string", format="date")
+     *             @OA\Property(property="year", type="integer"),
+     *             @OA\Property(property="type", type="string")
      *         )
      *     ),
      *     @OA\Response(
@@ -260,7 +262,8 @@ class ConcertController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="name", type="string"),
      *             @OA\Property(property="description", type="string"),
-     *             @OA\Property(property="date", type="string", format="date")
+     *             @OA\Property(property="year", type="integer"),
+     *             @OA\Property(property="type", type="string", enum={"concert", "festival", "dj set", "club show", "theater show"})
      *         )
      *     ),
      *     @OA\Response(
@@ -271,7 +274,8 @@ class ConcertController extends Controller
      *             @OA\Property(property="id", type="integer"),
      *             @OA\Property(property="name", type="string"),
      *             @OA\Property(property="description", type="string"),
-     *             @OA\Property(property="date", type="string", format="date")
+     *             @OA\Property(property="year", type="integer"),
+     *             @OA\Property(property="type", type="string")
      *         )
      *     ),
      *     @OA\Response(
@@ -293,9 +297,10 @@ class ConcertController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'description' => 'sometimes|string',
-            'date' => 'sometimes|date'
+            'name' => 'sometimes|string|min:3|max:255',
+            'description' => 'sometimes|string|min:10',
+            'year' => 'sometimes|integer|min:1900|max:2100',
+            'type' => 'sometimes|string|in:concert,festival,dj set,club show,theater show'
         ]);
 
         $concert->update($validated);

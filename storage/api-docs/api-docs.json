@@ -25,47 +25,41 @@
                         "example": "Metallica"
                     },
                     {
-                        "name": "date",
+                        "name": "year",
                         "in": "query",
-                        "description": "Filter concerts by specific date (format: YYYY-MM-DD)",
+                        "description": "Filter concerts by year",
                         "required": false,
                         "schema": {
-                            "type": "string",
-                            "format": "date"
+                            "type": "integer"
                         },
-                        "example": "2024-03-20"
+                        "example": "2024"
                     },
                     {
-                        "name": "from_date",
+                        "name": "type",
                         "in": "query",
-                        "description": "Filter concerts from this date onwards (format: YYYY-MM-DD)",
+                        "description": "Filter concerts by type",
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "format": "date"
+                            "enum": [
+                                "concert",
+                                "festival",
+                                "dj set",
+                                "club show",
+                                "theater show"
+                            ]
                         },
-                        "example": "2025-06-01"
-                    },
-                    {
-                        "name": "to_date",
-                        "in": "query",
-                        "description": "Filter concerts up to this date (format: YYYY-MM-DD)",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "format": "date"
-                        },
-                        "example": "2025-12-31"
+                        "example": "festival"
                     },
                     {
                         "name": "sort",
                         "in": "query",
-                        "description": "Sort concerts by field (name, date) and direction (asc, desc). Example: date:desc",
+                        "description": "Sort concerts by field (name, year) and direction (asc, desc). Example: year:desc",
                         "required": false,
                         "schema": {
                             "type": "string"
                         },
-                        "example": "date:desc"
+                        "example": "year:desc"
                     }
                 ],
                 "responses": {
@@ -89,10 +83,13 @@
                                                 "type": "string",
                                                 "example": "A fantastic summer music festival with multiple stages"
                                             },
-                                            "date": {
+                                            "year": {
+                                                "type": "integer",
+                                                "example": 2024
+                                            },
+                                            "type": {
                                                 "type": "string",
-                                                "format": "date",
-                                                "example": "2024-07-15"
+                                                "example": "festival"
                                             }
                                         },
                                         "type": "object"
@@ -117,7 +114,8 @@
                                 "required": [
                                     "name",
                                     "description",
-                                    "date"
+                                    "year",
+                                    "type"
                                 ],
                                 "properties": {
                                     "name": {
@@ -133,12 +131,22 @@
                                         "minLength": 10,
                                         "example": "A fantastic summer music festival with multiple stages featuring top artists from around the world. The event will include food vendors, merchandise stands, and VIP areas."
                                     },
-                                    "date": {
-                                        "description": "Date of the concert in YYYY-MM-DD format",
+                                    "year": {
+                                        "description": "Year of the concert",
+                                        "type": "integer",
+                                        "example": 2024
+                                    },
+                                    "type": {
+                                        "description": "Type of the concert",
                                         "type": "string",
-                                        "format": "date",
-                                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
-                                        "example": "1970-08-15"
+                                        "enum": [
+                                            "concert",
+                                            "festival",
+                                            "dj set",
+                                            "club show",
+                                            "theater show"
+                                        ],
+                                        "example": "festival"
                                     }
                                 },
                                 "type": "object"
@@ -165,10 +173,13 @@
                                             "type": "string",
                                             "example": "A fantastic summer music festival with multiple stages"
                                         },
-                                        "date": {
+                                        "year": {
+                                            "type": "integer",
+                                            "example": 2024
+                                        },
+                                        "type": {
                                             "type": "string",
-                                            "format": "date",
-                                            "example": "1970-08-15"
+                                            "example": "festival"
                                         },
                                         "created_at": {
                                             "type": "string",
@@ -212,11 +223,18 @@
                                                         "example": "The description field is required."
                                                     }
                                                 },
-                                                "date": {
+                                                "year": {
                                                     "type": "array",
                                                     "items": {
                                                         "type": "string",
-                                                        "example": "The date field is required."
+                                                        "example": "The year field is required."
+                                                    }
+                                                },
+                                                "type": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The type field is required."
                                                     }
                                                 }
                                             },
@@ -265,9 +283,11 @@
                                         "description": {
                                             "type": "string"
                                         },
-                                        "date": {
-                                            "type": "string",
-                                            "format": "date"
+                                        "year": {
+                                            "type": "integer"
+                                        },
+                                        "type": {
+                                            "type": "string"
                                         }
                                     },
                                     "type": "object"
@@ -309,9 +329,18 @@
                                     "description": {
                                         "type": "string"
                                     },
-                                    "date": {
+                                    "year": {
+                                        "type": "integer"
+                                    },
+                                    "type": {
                                         "type": "string",
-                                        "format": "date"
+                                        "enum": [
+                                            "concert",
+                                            "festival",
+                                            "dj set",
+                                            "club show",
+                                            "theater show"
+                                        ]
                                     }
                                 },
                                 "type": "object"
@@ -335,9 +364,11 @@
                                         "description": {
                                             "type": "string"
                                         },
-                                        "date": {
-                                            "type": "string",
-                                            "format": "date"
+                                        "year": {
+                                            "type": "integer"
+                                        },
+                                        "type": {
+                                            "type": "string"
                                         }
                                     },
                                     "type": "object"
