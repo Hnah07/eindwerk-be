@@ -34,8 +34,8 @@ class UserResource extends Resource
                     ->required()
                     ->maxLength(255),
                 Forms\Components\DateTimePicker::make('email_verified_at'),
-                Forms\Components\TextInput::make('profilePicture')
-                    ->maxLength(2048)
+                Forms\Components\FileUpload::make('profilePicture')
+                    ->avatar()
                     ->default(null),
                 Forms\Components\TextInput::make('bio')
                     ->maxLength(255)
