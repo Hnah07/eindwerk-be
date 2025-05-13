@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('country', function (Blueprint $table) {
+        Schema::create('countries', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('code', 2)->unique(); // ISO 3166-1 alpha-2 code (e.g., 'BE' for Belgium)
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('country');
+        Schema::dropIfExists('countries');
     }
 };

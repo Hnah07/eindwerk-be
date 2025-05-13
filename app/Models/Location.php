@@ -18,7 +18,7 @@ class Location extends Model
         'zipcode',
         'city',
         'website',
-        'country'
+        'country_id'
     ];
 
     public function concerts()
@@ -26,5 +26,10 @@ class Location extends Model
         return $this->belongsToMany(Concert::class, 'concert_occurrences')
             ->withPivot('date')
             ->withTimestamps();
+    }
+
+    public function country()
+    {
+        return $this->belongsTo(Country::class);
     }
 }
