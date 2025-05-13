@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('concert_occurrences', function (Blueprint $table) {
+        Schema::create('country', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('concert_id')->constrained()->onDelete('cascade');
-            $table->foreignId('location_id')->constrained()->onDelete('cascade');
-            $table->date('date');
+            $table->string('name');
+            $table->string('code', 2)->unique(); // ISO 3166-1 alpha-2 code (e.g., 'BE' for Belgium)
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('concert_occurrences');
+        Schema::dropIfExists('country');
     }
 };
