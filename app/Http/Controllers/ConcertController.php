@@ -87,8 +87,6 @@ class ConcertController extends Controller
      *                     @OA\Property(property="description", type="string", example="A fantastic summer music festival"),
      *                     @OA\Property(property="year", type="integer", example=2024),
      *                     @OA\Property(property="type", type="string", example="festival"),
-     *                     @OA\Property(property="created_at", type="string", format="date-time"),
-     *                     @OA\Property(property="updated_at", type="string", format="date-time"),
      *                     @OA\Property(
      *                         property="locations",
      *                         type="array",
@@ -225,9 +223,7 @@ class ConcertController extends Controller
      *                 @OA\Property(property="name", type="string", example="Summer Festival 2024"),
      *                 @OA\Property(property="description", type="string", example="A fantastic summer music festival"),
      *                 @OA\Property(property="year", type="integer", example=2024),
-     *                 @OA\Property(property="type", type="string", example="festival"),
-     *                 @OA\Property(property="created_at", type="string", format="date-time"),
-     *                 @OA\Property(property="updated_at", type="string", format="date-time")
+     *                 @OA\Property(property="type", type="string", example="festival")
      *             )
      *         )
      *     ),
@@ -285,11 +281,11 @@ class ConcertController extends Controller
      *         description="Concert details",
      *         @OA\JsonContent(
      *             type="object",
-     *             @OA\Property(property="id", type="integer"),
-     *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="description", type="string"),
-     *             @OA\Property(property="year", type="integer"),
-     *             @OA\Property(property="type", type="string")
+     *             @OA\Property(property="id", type="integer", example=1),
+     *             @OA\Property(property="name", type="string", example="Summer Festival 2024"),
+     *             @OA\Property(property="description", type="string", example="A fantastic summer music festival"),
+     *             @OA\Property(property="year", type="integer", example=2024),
+     *             @OA\Property(property="type", type="string", example="festival")
      *         )
      *     ),
      *     @OA\Response(
@@ -335,11 +331,11 @@ class ConcertController extends Controller
      *         description="Concert updated successfully",
      *         @OA\JsonContent(
      *             type="object",
-     *             @OA\Property(property="id", type="integer"),
-     *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="description", type="string"),
-     *             @OA\Property(property="year", type="integer"),
-     *             @OA\Property(property="type", type="string")
+     *             @OA\Property(property="id", type="integer", example=1),
+     *             @OA\Property(property="name", type="string", example="Summer Festival 2024"),
+     *             @OA\Property(property="description", type="string", example="A fantastic summer music festival"),
+     *             @OA\Property(property="year", type="integer", example=2024),
+     *             @OA\Property(property="type", type="string", example="festival")
      *         )
      *     ),
      *     @OA\Response(

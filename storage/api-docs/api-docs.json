@@ -122,14 +122,6 @@
                                                         "type": "string",
                                                         "example": "festival"
                                                     },
-                                                    "created_at": {
-                                                        "type": "string",
-                                                        "format": "date-time"
-                                                    },
-                                                    "updated_at": {
-                                                        "type": "string",
-                                                        "format": "date-time"
-                                                    },
                                                     "locations": {
                                                         "type": "array",
                                                         "items": {
@@ -262,14 +254,6 @@
                                                 "type": {
                                                     "type": "string",
                                                     "example": "festival"
-                                                },
-                                                "created_at": {
-                                                    "type": "string",
-                                                    "format": "date-time"
-                                                },
-                                                "updated_at": {
-                                                    "type": "string",
-                                                    "format": "date-time"
                                                 }
                                             },
                                             "type": "object"
@@ -312,19 +296,24 @@
                                 "schema": {
                                     "properties": {
                                         "id": {
-                                            "type": "integer"
+                                            "type": "integer",
+                                            "example": 1
                                         },
                                         "name": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "example": "Summer Festival 2024"
                                         },
                                         "description": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "example": "A fantastic summer music festival"
                                         },
                                         "year": {
-                                            "type": "integer"
+                                            "type": "integer",
+                                            "example": 2024
                                         },
                                         "type": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "example": "festival"
                                         }
                                     },
                                     "type": "object"
@@ -393,19 +382,24 @@
                                 "schema": {
                                     "properties": {
                                         "id": {
-                                            "type": "integer"
+                                            "type": "integer",
+                                            "example": 1
                                         },
                                         "name": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "example": "Summer Festival 2024"
                                         },
                                         "description": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "example": "A fantastic summer music festival"
                                         },
                                         "year": {
-                                            "type": "integer"
+                                            "type": "integer",
+                                            "example": 2024
                                         },
                                         "type": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "example": "festival"
                                         }
                                     },
                                     "type": "object"

@@ -190,7 +190,7 @@ class LocationController extends Controller
         }
 
         $location = Location::create($request->all());
-        return response()->json($location, 201);
+        return response()->json($location->makeHidden(['created_at', 'updated_at']), 201);
     }
 
     /**
@@ -355,7 +355,7 @@ class LocationController extends Controller
         }
 
         $location->update($request->all());
-        return response()->json($location);
+        return response()->json($location->makeHidden(['created_at', 'updated_at']));
     }
 
     /**
