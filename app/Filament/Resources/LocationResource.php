@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\LocationResource\Pages;
 use App\Filament\Resources\LocationResource\RelationManagers;
 use App\Models\Location;
+use App\Models\Country;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -47,9 +48,11 @@ class LocationResource extends Resource
                 Forms\Components\TextInput::make('website')
                     ->maxLength(255)
                     ->default(null),
-                Forms\Components\TextInput::make('country')
-                    ->required()
-                    ->maxLength(255),
+                Forms\Components\Select::make('country_id')
+                    ->relationship('country', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
             ]);
     }
 
@@ -76,8 +79,9 @@ class LocationResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('website')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('country')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('country.name')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -104,6 +108,16 @@ class LocationResource extends Resource
                                 fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
                             );
                     }),
+                Tables\Filters\SelectFilter::make('country_id')
+                    ->relationship('country', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->label('Country'),
+                Tables\Filters\SelectFilter::make('city')
+                    ->options(fn() => Location::query()->distinct()->pluck('city', 'city')->toArray())
+                    ->searchable()
+                    ->preload()
+                    ->label('City'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

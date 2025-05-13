@@ -509,9 +509,26 @@
                                                 "example": "https://www.royalconcerthall.be",
                                                 "nullable": true
                                             },
+                                            "country_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
                                             "country": {
-                                                "type": "string",
-                                                "example": "Belgium"
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Belgium"
+                                                    },
+                                                    "code": {
+                                                        "type": "string",
+                                                        "example": "BE"
+                                                    }
+                                                },
+                                                "type": "object"
                                             }
                                         },
                                         "type": "object"
@@ -541,7 +558,7 @@
                                     "housenr",
                                     "zipcode",
                                     "city",
-                                    "country"
+                                    "country_id"
                                 ],
                                 "properties": {
                                     "name": {
@@ -588,10 +605,10 @@
                                         "example": "https://www.royalconcerthall.be",
                                         "nullable": true
                                     },
-                                    "country": {
-                                        "description": "Country name (required)",
-                                        "type": "string",
-                                        "example": "Belgium"
+                                    "country_id": {
+                                        "description": "ID of the country (required)",
+                                        "type": "integer",
+                                        "example": 1
                                     }
                                 },
                                 "type": "object"
@@ -646,9 +663,26 @@
                                             "example": "https://www.royalconcerthall.be",
                                             "nullable": true
                                         },
+                                        "country_id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
                                         "country": {
-                                            "type": "string",
-                                            "example": "Belgium"
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Belgium"
+                                                },
+                                                "code": {
+                                                    "type": "string",
+                                                    "example": "BE"
+                                                }
+                                            },
+                                            "type": "object"
                                         },
                                         "created_at": {
                                             "type": "string",
@@ -760,9 +794,26 @@
                                             "example": "https://www.royalconcerthall.be",
                                             "nullable": true
                                         },
+                                        "country_id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
                                         "country": {
-                                            "type": "string",
-                                            "example": "Belgium"
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Belgium"
+                                                },
+                                                "code": {
+                                                    "type": "string",
+                                                    "example": "BE"
+                                                }
+                                            },
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -842,10 +893,10 @@
                                         "example": "https://www.royalconcerthall.be",
                                         "nullable": true
                                     },
-                                    "country": {
-                                        "description": "Country name (optional)",
-                                        "type": "string",
-                                        "example": "Belgium"
+                                    "country_id": {
+                                        "description": "ID of the country (optional)",
+                                        "type": "integer",
+                                        "example": 1
                                     }
                                 },
                                 "type": "object"
@@ -900,9 +951,26 @@
                                             "example": "https://www.royalconcerthall.be",
                                             "nullable": true
                                         },
+                                        "country_id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
                                         "country": {
-                                            "type": "string",
-                                            "example": "Belgium"
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Belgium"
+                                                },
+                                                "code": {
+                                                    "type": "string",
+                                                    "example": "BE"
+                                                }
+                                            },
+                                            "type": "object"
                                         },
                                         "updated_at": {
                                             "type": "string",

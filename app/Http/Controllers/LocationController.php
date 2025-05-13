@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Location;
+use App\Models\Country;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
@@ -13,13 +14,15 @@ class LocationController extends Controller
      * @OA\Get(
      *     path="/api/locations",
      *     summary="Get all locations",
+     *     description="Returns a list of all locations. If a search parameter is provided, it will filter locations by name, city, or country name.",
      *     tags={"Locations"},
      *     @OA\Parameter(
      *         name="search",
      *         in="query",
-     *         description="Search locations by name, city, country",
+     *         description="Optional: Search locations by name, city, or country name. If not provided, all locations will be returned.",
      *         required=false,
-     *         @OA\Schema(type="string")
+     *         @OA\Schema(type="string"),
+     *         example="Antwerp"
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -37,7 +40,14 @@ class LocationController extends Controller
      *                 @OA\Property(property="zipcode", type="string", example="2000"),
      *                 @OA\Property(property="city", type="string", example="Antwerp"),
      *                 @OA\Property(property="website", type="string", format="uri", example="https://www.royalconcerthall.be", nullable=true),
-     *                 @OA\Property(property="country", type="string", example="Belgium")
+     *                 @OA\Property(property="country_id", type="integer", example=1),
+     *                 @OA\Property(
+     *                     property="country",
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="name", type="string", example="Belgium"),
+     *                     @OA\Property(property="code", type="string", example="BE")
+     *                 )
      *             )
      *         )
      *     )
@@ -45,14 +55,16 @@ class LocationController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Location::query();
+        $query = Location::with('country');
 
         if ($request->has('search')) {
             $search = $request->get('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('city', 'like', "%{$search}%")
-                    ->orWhere('country', 'like', "%{$search}%");
+                    ->orWhereHas('country', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -68,7 +80,7 @@ class LocationController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"name", "longitude", "latitude", "street", "housenr", "zipcode", "city", "country"},
+     *             required={"name", "longitude", "latitude", "street", "housenr", "zipcode", "city", "country_id"},
      *             @OA\Property(
      *                 property="name",
      *                 type="string",
@@ -122,10 +134,10 @@ class LocationController extends Controller
      *                 description="Website URL (optional)"
      *             ),
      *             @OA\Property(
-     *                 property="country",
-     *                 type="string",
-     *                 example="Belgium",
-     *                 description="Country name (required)"
+     *                 property="country_id",
+     *                 type="integer",
+     *                 example=1,
+     *                 description="ID of the country (required)"
      *             )
      *         )
      *     ),
@@ -143,7 +155,14 @@ class LocationController extends Controller
      *             @OA\Property(property="zipcode", type="string", example="2000"),
      *             @OA\Property(property="city", type="string", example="Antwerp"),
      *             @OA\Property(property="website", type="string", format="uri", example="https://www.royalconcerthall.be", nullable=true),
-     *             @OA\Property(property="country", type="string", example="Belgium"),
+     *             @OA\Property(property="country_id", type="integer", example=1),
+     *             @OA\Property(
+     *                 property="country",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Belgium"),
+     *                 @OA\Property(property="code", type="string", example="BE")
+     *             ),
      *             @OA\Property(property="created_at", type="string", format="date-time"),
      *             @OA\Property(property="updated_at", type="string", format="date-time")
      *         )
@@ -182,7 +201,7 @@ class LocationController extends Controller
             'zipcode' => 'required|string|max:20',
             'city' => 'required|string|max:255',
             'website' => 'nullable|url|max:255',
-            'country' => 'required|string|max:255'
+            'country_id' => 'required|exists:countries,id'
         ]);
 
         if ($validator->fails()) {
@@ -190,7 +209,7 @@ class LocationController extends Controller
         }
 
         $location = Location::create($request->all());
-        return response()->json($location->makeHidden(['created_at', 'updated_at']), 201);
+        return response()->json($location->load('country')->makeHidden(['created_at', 'updated_at']), 201);
     }
 
     /**
@@ -219,7 +238,14 @@ class LocationController extends Controller
      *             @OA\Property(property="zipcode", type="string", example="2000"),
      *             @OA\Property(property="city", type="string", example="Antwerp"),
      *             @OA\Property(property="website", type="string", format="uri", example="https://www.royalconcerthall.be", nullable=true),
-     *             @OA\Property(property="country", type="string", example="Belgium")
+     *             @OA\Property(property="country_id", type="integer", example=1),
+     *             @OA\Property(
+     *                 property="country",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Belgium"),
+     *                 @OA\Property(property="code", type="string", example="BE")
+     *             )
      *         )
      *     ),
      *     @OA\Response(
@@ -230,7 +256,7 @@ class LocationController extends Controller
      */
     public function show(Location $location): JsonResponse
     {
-        return response()->json($location);
+        return response()->json($location->load('country'));
     }
 
     /**
@@ -301,10 +327,10 @@ class LocationController extends Controller
      *                 description="Website URL (optional)"
      *             ),
      *             @OA\Property(
-     *                 property="country",
-     *                 type="string",
-     *                 example="Belgium",
-     *                 description="Country name (optional)"
+     *                 property="country_id",
+     *                 type="integer",
+     *                 example=1,
+     *                 description="ID of the country (optional)"
      *             )
      *         )
      *     ),
@@ -322,7 +348,14 @@ class LocationController extends Controller
      *             @OA\Property(property="zipcode", type="string", example="2000"),
      *             @OA\Property(property="city", type="string", example="Antwerp"),
      *             @OA\Property(property="website", type="string", format="uri", example="https://www.royalconcerthall.be", nullable=true),
-     *             @OA\Property(property="country", type="string", example="Belgium"),
+     *             @OA\Property(property="country_id", type="integer", example=1),
+     *             @OA\Property(
+     *                 property="country",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Belgium"),
+     *                 @OA\Property(property="code", type="string", example="BE")
+     *             ),
      *             @OA\Property(property="updated_at", type="string", format="date-time")
      *         )
      *     ),
@@ -347,7 +380,7 @@ class LocationController extends Controller
             'zipcode' => 'sometimes|required|string|max:20',
             'city' => 'sometimes|required|string|max:255',
             'website' => 'nullable|url|max:255',
-            'country' => 'sometimes|required|string|max:255'
+            'country_id' => 'sometimes|required|exists:countries,id'
         ]);
 
         if ($validator->fails()) {
@@ -355,7 +388,7 @@ class LocationController extends Controller
         }
 
         $location->update($request->all());
-        return response()->json($location->makeHidden(['created_at', 'updated_at']));
+        return response()->json($location->load('country')->makeHidden(['created_at', 'updated_at']));
     }
 
     /**
