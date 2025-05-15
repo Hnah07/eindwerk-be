@@ -519,10 +519,6 @@
                                                 "example": "https://www.royalconcerthall.be",
                                                 "nullable": true
                                             },
-                                            "country_id": {
-                                                "type": "integer",
-                                                "example": 1
-                                            },
                                             "country": {
                                                 "properties": {
                                                     "id": {

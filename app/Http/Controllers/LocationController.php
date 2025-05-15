@@ -42,7 +42,6 @@ class LocationController extends Controller
      *                 @OA\Property(property="zipcode", type="string", example="2000"),
      *                 @OA\Property(property="city", type="string", example="Antwerp"),
      *                 @OA\Property(property="website", type="string", format="uri", example="https://www.royalconcerthall.be", nullable=true),
-     *                 @OA\Property(property="country_id", type="integer", example=1),
      *                 @OA\Property(
      *                     property="country",
      *                     type="object",
@@ -57,7 +56,9 @@ class LocationController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Location::with('country');
+        $query = Location::with(['country' => function ($query) {
+            $query->select('id', 'name', 'code');
+        }]);
 
         if ($request->has('search')) {
             $search = $request->get('search');
@@ -71,7 +72,7 @@ class LocationController extends Controller
         }
 
         $locations = $query->get();
-        return response()->json($locations->makeHidden(['created_at', 'updated_at']));
+        return response()->json($locations->makeHidden(['created_at', 'updated_at', 'country_id']));
     }
 
     /**
@@ -225,7 +226,12 @@ class LocationController extends Controller
         }
 
         $location = Location::create($data);
-        return response()->json($location->load('country')->makeHidden(['created_at', 'updated_at']), 201);
+        return response()->json(
+            $location->load(['country' => function ($query) {
+                $query->select('id', 'name', 'code');
+            }])->makeHidden(['created_at', 'updated_at', 'country_id']),
+            201
+        );
     }
 
     /**
@@ -273,7 +279,11 @@ class LocationController extends Controller
      */
     public function show(Location $location): JsonResponse
     {
-        return response()->json($location->load('country')->makeHidden(['created_at', 'updated_at']));
+        return response()->json(
+            $location->load(['country' => function ($query) {
+                $query->select('id', 'name', 'code');
+            }])->makeHidden(['created_at', 'updated_at', 'country_id'])
+        );
     }
 
     /**
@@ -414,7 +424,11 @@ class LocationController extends Controller
         }
 
         $location->update($request->all());
-        return response()->json($location->load('country')->makeHidden(['created_at', 'updated_at']));
+        return response()->json(
+            $location->load(['country' => function ($query) {
+                $query->select('id', 'name', 'code');
+            }])->makeHidden(['created_at', 'updated_at', 'country_id'])
+        );
     }
 
     /**
