@@ -138,12 +138,31 @@ class ConcertResource extends Resource
                         ConcertStatus::VERIFIED => 'success',
                         ConcertStatus::REJECTED => 'danger',
                     }),
-                Tables\Columns\TextColumn::make('description')
-                    ->limit(50),
                 Tables\Columns\TextColumn::make('locations.name')
                     ->label('Location')
-                    ->sortable()
-                    ->searchable(),
+                    ->formatStateUsing(function ($state, $record) {
+                        if (!$record->locations->count()) {
+                            return '-';
+                        }
+
+                        $totalLocations = $record->locations->count();
+                        $firstLocation = $record->locations->first()->name;
+
+                        if ($totalLocations === 1) {
+                            return $firstLocation;
+                        }
+
+                        return $firstLocation . ' (+' . ($totalLocations - 1) . ' more)';
+                    })
+                    ->tooltip(function ($record) {
+                        if (!$record->locations->count()) {
+                            return null;
+                        }
+
+                        return $record->locations
+                            ->pluck('name')
+                            ->join("\n");
+                    }),
                 Tables\Columns\TextColumn::make('occurrences.date')
                     ->label('Dates')
                     ->sortable()
@@ -191,6 +210,19 @@ class ConcertResource extends Resource
                         'theater show' => 'Theater Show',
                     ])
                     ->multiple(),
+                Tables\Filters\SelectFilter::make('source')
+                    ->options([
+                        ConcertSource::MANUAL->value => 'Manual',
+                        ConcertSource::API->value => 'API',
+                    ])
+                    ->multiple(),
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        ConcertStatus::PENDING_APPROVAL->value => 'Pending Approval',
+                        ConcertStatus::VERIFIED->value => 'Verified',
+                        ConcertStatus::REJECTED->value => 'Rejected',
+                    ])
+                    ->multiple(),
                 Tables\Filters\Filter::make('year')
                     ->form([
                         Forms\Components\TextInput::make('year')
@@ -226,8 +258,8 @@ class ConcertResource extends Resource
                 Tables\Filters\SelectFilter::make('location')
                     ->relationship('locations', 'name')
                     ->multiple()
-                    ->preload() // load all locations by refreshing the page, remove when there are too many locations
                     ->searchable()
+                    ->preload(false),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
