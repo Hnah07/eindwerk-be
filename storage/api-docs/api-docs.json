@@ -21,8 +21,7 @@
                         "required": false,
                         "schema": {
                             "type": "string"
-                        },
-                        "example": "Metallica"
+                        }
                     },
                     {
                         "name": "year",
@@ -31,8 +30,7 @@
                         "required": false,
                         "schema": {
                             "type": "integer"
-                        },
-                        "example": "2024"
+                        }
                     },
                     {
                         "name": "type",
@@ -48,8 +46,7 @@
                                 "club show",
                                 "theater show"
                             ]
-                        },
-                        "example": "festival"
+                        }
                     },
                     {
                         "name": "location_name",
@@ -87,13 +84,12 @@
                         "required": false,
                         "schema": {
                             "type": "string"
-                        },
-                        "example": "year:desc"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "List of concerts",
+                        "description": "List of concerts with their occurrences at valid locations",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -103,41 +99,55 @@
                                             "items": {
                                                 "properties": {
                                                     "id": {
-                                                        "type": "integer",
-                                                        "example": 1
+                                                        "type": "integer"
                                                     },
                                                     "name": {
-                                                        "type": "string",
-                                                        "example": "Summer Festival 2024"
+                                                        "type": "string"
                                                     },
                                                     "description": {
-                                                        "type": "string",
-                                                        "example": "A fantastic summer music festival"
+                                                        "type": "string"
                                                     },
                                                     "year": {
-                                                        "type": "integer",
-                                                        "example": 2024
+                                                        "type": "integer"
                                                     },
                                                     "type": {
-                                                        "type": "string",
-                                                        "example": "festival"
+                                                        "type": "string"
                                                     },
-                                                    "locations": {
+                                                    "source": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "manual",
+                                                            "api"
+                                                        ]
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "pending_approval",
+                                                            "verified",
+                                                            "rejected"
+                                                        ]
+                                                    },
+                                                    "occurrences": {
+                                                        "description": "List of occurrences with valid locations",
                                                         "type": "array",
                                                         "items": {
                                                             "properties": {
-                                                                "id": {
-                                                                    "type": "integer",
-                                                                    "example": 1
-                                                                },
-                                                                "name": {
-                                                                    "type": "string",
-                                                                    "example": "Main Stage"
+                                                                "location": {
+                                                                    "description": "Location details (only included for valid locations)",
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "integer"
+                                                                        },
+                                                                        "name": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
                                                                 },
                                                                 "date": {
                                                                     "type": "string",
-                                                                    "format": "date-time",
-                                                                    "example": "2024-03-20T19:00:00Z"
+                                                                    "format": "date-time"
                                                                 }
                                                             },
                                                             "type": "object"
@@ -179,19 +189,16 @@
                                         "description": "Name of the concert",
                                         "type": "string",
                                         "maxLength": 255,
-                                        "minLength": 3,
-                                        "example": "Summer Festival 2024"
+                                        "minLength": 3
                                     },
                                     "description": {
                                         "description": "Detailed description of the concert",
                                         "type": "string",
-                                        "minLength": 10,
-                                        "example": "A fantastic summer music festival with multiple stages"
+                                        "minLength": 10
                                     },
                                     "year": {
                                         "description": "Year of the concert",
-                                        "type": "integer",
-                                        "example": 2024
+                                        "type": "integer"
                                     },
                                     "type": {
                                         "description": "Type of the concert",
@@ -202,19 +209,33 @@
                                             "dj set",
                                             "club show",
                                             "theater show"
-                                        ],
-                                        "example": "festival"
+                                        ]
+                                    },
+                                    "source": {
+                                        "description": "Source of the concert",
+                                        "type": "string",
+                                        "enum": [
+                                            "manual",
+                                            "api"
+                                        ]
+                                    },
+                                    "status": {
+                                        "description": "Status of the concert",
+                                        "type": "string",
+                                        "enum": [
+                                            "pending_approval",
+                                            "verified",
+                                            "rejected"
+                                        ]
                                     },
                                     "location_id": {
                                         "description": "ID of the location where the concert will take place",
-                                        "type": "integer",
-                                        "example": 1
+                                        "type": "integer"
                                     },
                                     "date": {
                                         "description": "Date and time of the concert",
                                         "type": "string",
-                                        "format": "date-time",
-                                        "example": "2024-03-20T19:00:00Z"
+                                        "format": "date-time"
                                     }
                                 },
                                 "type": "object"
@@ -230,30 +251,30 @@
                                 "schema": {
                                     "properties": {
                                         "message": {
-                                            "type": "string",
-                                            "example": "Concert created successfully"
+                                            "type": "string"
                                         },
                                         "data": {
                                             "properties": {
                                                 "id": {
-                                                    "type": "integer",
-                                                    "example": 1
+                                                    "type": "integer"
                                                 },
                                                 "name": {
-                                                    "type": "string",
-                                                    "example": "Summer Festival 2024"
+                                                    "type": "string"
                                                 },
                                                 "description": {
-                                                    "type": "string",
-                                                    "example": "A fantastic summer music festival"
+                                                    "type": "string"
                                                 },
                                                 "year": {
-                                                    "type": "integer",
-                                                    "example": 2024
+                                                    "type": "integer"
                                                 },
                                                 "type": {
-                                                    "type": "string",
-                                                    "example": "festival"
+                                                    "type": "string"
+                                                },
+                                                "source": {
+                                                    "type": "string"
+                                                },
+                                                "status": {
+                                                    "type": "string"
                                                 }
                                             },
                                             "type": "object"
@@ -296,24 +317,25 @@
                                 "schema": {
                                     "properties": {
                                         "id": {
-                                            "type": "integer",
-                                            "example": 1
+                                            "type": "integer"
                                         },
                                         "name": {
-                                            "type": "string",
-                                            "example": "Summer Festival 2024"
+                                            "type": "string"
                                         },
                                         "description": {
-                                            "type": "string",
-                                            "example": "A fantastic summer music festival"
+                                            "type": "string"
                                         },
                                         "year": {
-                                            "type": "integer",
-                                            "example": 2024
+                                            "type": "integer"
                                         },
                                         "type": {
-                                            "type": "string",
-                                            "example": "festival"
+                                            "type": "string"
+                                        },
+                                        "source": {
+                                            "type": "string"
+                                        },
+                                        "status": {
+                                            "type": "string"
                                         }
                                     },
                                     "type": "object"
@@ -367,6 +389,21 @@
                                             "club show",
                                             "theater show"
                                         ]
+                                    },
+                                    "source": {
+                                        "type": "string",
+                                        "enum": [
+                                            "manual",
+                                            "api"
+                                        ]
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "pending_approval",
+                                            "verified",
+                                            "rejected"
+                                        ]
                                     }
                                 },
                                 "type": "object"
@@ -382,24 +419,25 @@
                                 "schema": {
                                     "properties": {
                                         "id": {
-                                            "type": "integer",
-                                            "example": 1
+                                            "type": "integer"
                                         },
                                         "name": {
-                                            "type": "string",
-                                            "example": "Summer Festival 2024"
+                                            "type": "string"
                                         },
                                         "description": {
-                                            "type": "string",
-                                            "example": "A fantastic summer music festival"
+                                            "type": "string"
                                         },
                                         "year": {
-                                            "type": "integer",
-                                            "example": 2024
+                                            "type": "integer"
                                         },
                                         "type": {
-                                            "type": "string",
-                                            "example": "festival"
+                                            "type": "string"
+                                        },
+                                        "source": {
+                                            "type": "string"
+                                        },
+                                        "status": {
+                                            "type": "string"
                                         }
                                     },
                                     "type": "object"

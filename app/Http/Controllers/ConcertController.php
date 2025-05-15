@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ConcertSource;
+use App\Enums\ConcertStatus;
 use App\Models\Concert;
 use Illuminate\Http\Request;
 
@@ -24,24 +26,21 @@ class ConcertController extends Controller
      *         in="query",
      *         description="Search concerts by name (partial match)",
      *         required=false,
-     *         @OA\Schema(type="string"),
-     *         example="Metallica"
+     *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
      *         name="year",
      *         in="query",
      *         description="Filter concerts by year",
      *         required=false,
-     *         @OA\Schema(type="integer"),
-     *         example="2024"
+     *         @OA\Schema(type="integer")
      *     ),
      *     @OA\Parameter(
      *         name="type",
      *         in="query",
      *         description="Filter concerts by type",
      *         required=false,
-     *         @OA\Schema(type="string", enum={"concert", "festival", "dj set", "club show", "theater show"}),
-     *         example="festival"
+     *         @OA\Schema(type="string", enum={"concert", "festival", "dj set", "club show", "theater show"})
      *     ),
      *     @OA\Parameter(
      *         name="location_name",
@@ -69,12 +68,11 @@ class ConcertController extends Controller
      *         in="query",
      *         description="Sort concerts by field (name, year) and direction (asc, desc). Example: year:desc",
      *         required=false,
-     *         @OA\Schema(type="string"),
-     *         example="year:desc"
+     *         @OA\Schema(type="string")
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="List of concerts",
+     *         description="List of concerts with their occurrences at valid locations",
      *         @OA\JsonContent(
      *             type="object",
      *             @OA\Property(
@@ -82,19 +80,27 @@ class ConcertController extends Controller
      *                 type="array",
      *                 @OA\Items(
      *                     type="object",
-     *                     @OA\Property(property="id", type="integer", example=1),
-     *                     @OA\Property(property="name", type="string", example="Summer Festival 2024"),
-     *                     @OA\Property(property="description", type="string", example="A fantastic summer music festival"),
-     *                     @OA\Property(property="year", type="integer", example=2024),
-     *                     @OA\Property(property="type", type="string", example="festival"),
+     *                     @OA\Property(property="id", type="integer"),
+     *                     @OA\Property(property="name", type="string"),
+     *                     @OA\Property(property="description", type="string"),
+     *                     @OA\Property(property="year", type="integer"),
+     *                     @OA\Property(property="type", type="string"),
+     *                     @OA\Property(property="source", type="string", enum={"manual", "api"}),
+     *                     @OA\Property(property="status", type="string", enum={"pending_approval", "verified", "rejected"}),
      *                     @OA\Property(
-     *                         property="locations",
+     *                         property="occurrences",
      *                         type="array",
+     *                         description="List of occurrences with valid locations",
      *                         @OA\Items(
      *                             type="object",
-     *                             @OA\Property(property="id", type="integer", example=1),
-     *                             @OA\Property(property="name", type="string", example="Main Stage"),
-     *                             @OA\Property(property="date", type="string", format="date-time", example="2024-03-20T19:00:00Z")
+     *                             @OA\Property(
+     *                                 property="location",
+     *                                 type="object",
+     *                                 description="Location details (only included for valid locations)",
+     *                                 @OA\Property(property="id", type="integer"),
+     *                                 @OA\Property(property="name", type="string")
+     *                             ),
+     *                             @OA\Property(property="date", type="string", format="date-time")
      *                         )
      *                     )
      *                 )
@@ -148,13 +154,40 @@ class ConcertController extends Controller
             $query->orderBy('year', 'desc');
         }
 
-        $concerts = $query->with(['locations' => function ($query) {
-            $query->select('locations.id', 'locations.name')
-                ->withPivot('date');
+        $concerts = $query->with(['occurrences' => function ($query) {
+            $query->with('location:id,name')
+                ->whereNotNull('location_id');
         }])->get();
 
+        $transformedConcerts = $concerts->map(function ($concert) {
+            $occurrences = $concert->occurrences->map(function ($occurrence) {
+                if (!$occurrence->location) {
+                    return null;
+                }
+
+                return [
+                    'location' => [
+                        'id' => $occurrence->location->id,
+                        'name' => $occurrence->location->name
+                    ],
+                    'date' => $occurrence->date
+                ];
+            })->filter();
+
+            return [
+                'id' => $concert->id,
+                'name' => $concert->name,
+                'description' => $concert->description,
+                'year' => $concert->year,
+                'type' => $concert->type,
+                'source' => $concert->source,
+                'status' => $concert->status,
+                'occurrences' => $occurrences
+            ];
+        });
+
         return response()->json([
-            'data' => $concerts
+            'data' => $transformedConcerts
         ]);
     }
 
@@ -171,7 +204,6 @@ class ConcertController extends Controller
      *                 property="name",
      *                 type="string",
      *                 description="Name of the concert",
-     *                 example="Summer Festival 2024",
      *                 minLength=3,
      *                 maxLength=255
      *             ),
@@ -179,34 +211,41 @@ class ConcertController extends Controller
      *                 property="description",
      *                 type="string",
      *                 description="Detailed description of the concert",
-     *                 example="A fantastic summer music festival with multiple stages",
      *                 minLength=10
      *             ),
      *             @OA\Property(
      *                 property="year",
      *                 type="integer",
-     *                 description="Year of the concert",
-     *                 example=2024
+     *                 description="Year of the concert"
      *             ),
      *             @OA\Property(
      *                 property="type",
      *                 type="string",
      *                 description="Type of the concert",
-     *                 enum={"concert", "festival", "dj set", "club show", "theater show"},
-     *                 example="festival"
+     *                 enum={"concert", "festival", "dj set", "club show", "theater show"}
+     *             ),
+     *             @OA\Property(
+     *                 property="source",
+     *                 type="string",
+     *                 description="Source of the concert",
+     *                 enum={"manual", "api"}
+     *             ),
+     *             @OA\Property(
+     *                 property="status",
+     *                 type="string",
+     *                 description="Status of the concert",
+     *                 enum={"pending_approval", "verified", "rejected"}
      *             ),
      *             @OA\Property(
      *                 property="location_id",
      *                 type="integer",
-     *                 description="ID of the location where the concert will take place",
-     *                 example=1
+     *                 description="ID of the location where the concert will take place"
      *             ),
      *             @OA\Property(
      *                 property="date",
      *                 type="string",
      *                 format="date-time",
-     *                 description="Date and time of the concert",
-     *                 example="2024-03-20T19:00:00Z"
+     *                 description="Date and time of the concert"
      *             )
      *         )
      *     ),
@@ -215,15 +254,17 @@ class ConcertController extends Controller
      *         description="Concert created successfully",
      *         @OA\JsonContent(
      *             type="object",
-     *             @OA\Property(property="message", type="string", example="Concert created successfully"),
+     *             @OA\Property(property="message", type="string"),
      *             @OA\Property(
      *                 property="data",
      *                 type="object",
-     *                 @OA\Property(property="id", type="integer", example=1),
-     *                 @OA\Property(property="name", type="string", example="Summer Festival 2024"),
-     *                 @OA\Property(property="description", type="string", example="A fantastic summer music festival"),
-     *                 @OA\Property(property="year", type="integer", example=2024),
-     *                 @OA\Property(property="type", type="string", example="festival")
+     *                 @OA\Property(property="id", type="integer"),
+     *                 @OA\Property(property="name", type="string"),
+     *                 @OA\Property(property="description", type="string"),
+     *                 @OA\Property(property="year", type="integer"),
+     *                 @OA\Property(property="type", type="string"),
+     *                 @OA\Property(property="source", type="string"),
+     *                 @OA\Property(property="status", type="string")
      *             )
      *         )
      *     ),
@@ -241,6 +282,8 @@ class ConcertController extends Controller
             'description' => 'required|string|min:10',
             'year' => 'required|integer|min:1900|max:2100',
             'type' => 'required|string|in:concert,festival,dj set,club show,theater show',
+            'source' => 'required|string|in:manual,api',
+            'status' => 'required|string|in:pending_approval,verified,rejected',
             'location_id' => 'required|exists:locations,id',
             'date' => 'required|date'
         ]);
@@ -250,7 +293,9 @@ class ConcertController extends Controller
             'name' => $validated['name'],
             'description' => $validated['description'],
             'year' => $validated['year'],
-            'type' => $validated['type']
+            'type' => $validated['type'],
+            'source' => $validated['source'],
+            'status' => $validated['status']
         ]);
 
         // 3. Attach location with date via pivot table
@@ -281,11 +326,13 @@ class ConcertController extends Controller
      *         description="Concert details",
      *         @OA\JsonContent(
      *             type="object",
-     *             @OA\Property(property="id", type="integer", example=1),
-     *             @OA\Property(property="name", type="string", example="Summer Festival 2024"),
-     *             @OA\Property(property="description", type="string", example="A fantastic summer music festival"),
-     *             @OA\Property(property="year", type="integer", example=2024),
-     *             @OA\Property(property="type", type="string", example="festival")
+     *             @OA\Property(property="id", type="integer"),
+     *             @OA\Property(property="name", type="string"),
+     *             @OA\Property(property="description", type="string"),
+     *             @OA\Property(property="year", type="integer"),
+     *             @OA\Property(property="type", type="string"),
+     *             @OA\Property(property="source", type="string"),
+     *             @OA\Property(property="status", type="string")
      *         )
      *     ),
      *     @OA\Response(
@@ -323,7 +370,9 @@ class ConcertController extends Controller
      *             @OA\Property(property="name", type="string"),
      *             @OA\Property(property="description", type="string"),
      *             @OA\Property(property="year", type="integer"),
-     *             @OA\Property(property="type", type="string", enum={"concert", "festival", "dj set", "club show", "theater show"})
+     *             @OA\Property(property="type", type="string", enum={"concert", "festival", "dj set", "club show", "theater show"}),
+     *             @OA\Property(property="source", type="string", enum={"manual", "api"}),
+     *             @OA\Property(property="status", type="string", enum={"pending_approval", "verified", "rejected"})
      *         )
      *     ),
      *     @OA\Response(
@@ -331,11 +380,13 @@ class ConcertController extends Controller
      *         description="Concert updated successfully",
      *         @OA\JsonContent(
      *             type="object",
-     *             @OA\Property(property="id", type="integer", example=1),
-     *             @OA\Property(property="name", type="string", example="Summer Festival 2024"),
-     *             @OA\Property(property="description", type="string", example="A fantastic summer music festival"),
-     *             @OA\Property(property="year", type="integer", example=2024),
-     *             @OA\Property(property="type", type="string", example="festival")
+     *             @OA\Property(property="id", type="integer"),
+     *             @OA\Property(property="name", type="string"),
+     *             @OA\Property(property="description", type="string"),
+     *             @OA\Property(property="year", type="integer"),
+     *             @OA\Property(property="type", type="string"),
+     *             @OA\Property(property="source", type="string"),
+     *             @OA\Property(property="status", type="string")
      *         )
      *     ),
      *     @OA\Response(
@@ -360,7 +411,9 @@ class ConcertController extends Controller
             'name' => 'sometimes|string|min:3|max:255',
             'description' => 'sometimes|string|min:10',
             'year' => 'sometimes|integer|min:1900|max:2100',
-            'type' => 'sometimes|string|in:concert,festival,dj set,club show,theater show'
+            'type' => 'sometimes|string|in:concert,festival,dj set,club show,theater show',
+            'source' => 'sometimes|string|in:manual,api',
+            'status' => 'sometimes|string|in:pending_approval,verified,rejected'
         ]);
 
         $concert->update($validated);
