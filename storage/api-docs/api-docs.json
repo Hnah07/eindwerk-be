@@ -448,16 +448,18 @@
                     "Locations"
                 ],
                 "summary": "Get all locations",
+                "description": "Returns a list of all locations. If a search parameter is provided, it will filter locations by name, city, or country name.",
                 "operationId": "c22aa1cae7ab2b2ad315141d06fec369",
                 "parameters": [
                     {
                         "name": "search",
                         "in": "query",
-                        "description": "Search locations by name, city, country",
+                        "description": "Optional: Search locations by name, city, or country name. If not provided, all locations will be returned.",
                         "required": false,
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "Antwerp"
                     }
                 ],
                 "responses": {
@@ -476,6 +478,14 @@
                                             "name": {
                                                 "type": "string",
                                                 "example": "Royal Concert Hall"
+                                            },
+                                            "source": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "manual",
+                                                    "api"
+                                                ],
+                                                "example": "manual"
                                             },
                                             "longitude": {
                                                 "type": "number",
@@ -566,6 +576,15 @@
                                         "type": "string",
                                         "example": "Royal Concert Hall"
                                     },
+                                    "source": {
+                                        "description": "Source of the location (defaults to manual)",
+                                        "type": "string",
+                                        "enum": [
+                                            "manual",
+                                            "api"
+                                        ],
+                                        "example": "manual"
+                                    },
                                     "longitude": {
                                         "description": "Longitude coordinate (required)",
                                         "type": "number",
@@ -630,6 +649,14 @@
                                         "name": {
                                             "type": "string",
                                             "example": "Royal Concert Hall"
+                                        },
+                                        "source": {
+                                            "type": "string",
+                                            "enum": [
+                                                "manual",
+                                                "api"
+                                            ],
+                                            "example": "manual"
                                         },
                                         "longitude": {
                                             "type": "number",
@@ -762,6 +789,14 @@
                                             "type": "string",
                                             "example": "Royal Concert Hall"
                                         },
+                                        "source": {
+                                            "type": "string",
+                                            "enum": [
+                                                "manual",
+                                                "api"
+                                            ],
+                                            "example": "manual"
+                                        },
                                         "longitude": {
                                             "type": "number",
                                             "format": "float",
@@ -854,6 +889,15 @@
                                         "type": "string",
                                         "example": "Royal Concert Hall"
                                     },
+                                    "source": {
+                                        "description": "Source of the location (optional)",
+                                        "type": "string",
+                                        "enum": [
+                                            "manual",
+                                            "api"
+                                        ],
+                                        "example": "manual"
+                                    },
                                     "longitude": {
                                         "description": "Longitude coordinate (optional)",
                                         "type": "number",
@@ -918,6 +962,14 @@
                                         "name": {
                                             "type": "string",
                                             "example": "Royal Concert Hall"
+                                        },
+                                        "source": {
+                                            "type": "string",
+                                            "enum": [
+                                                "manual",
+                                                "api"
+                                            ],
+                                            "example": "manual"
                                         },
                                         "longitude": {
                                             "type": "number",

@@ -6,6 +6,7 @@ use App\Filament\Resources\LocationResource\Pages;
 use App\Filament\Resources\LocationResource\RelationManagers;
 use App\Models\Location;
 use App\Models\Country;
+use App\Enums\LocationSource;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -27,6 +28,11 @@ class LocationResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\Select::make('source')
+                    ->enum(LocationSource::class)
+                    ->options(LocationSource::class)
+                    ->required()
+                    ->default(LocationSource::MANUAL),
                 Forms\Components\TextInput::make('longitude')
                     ->required()
                     ->numeric(),
@@ -63,6 +69,13 @@ class LocationResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('source')
+                    ->badge()
+                    ->color(fn(LocationSource $state): string => match ($state) {
+                        LocationSource::MANUAL => 'gray',
+                        LocationSource::API => 'success',
+                    })
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('longitude')
                     ->numeric()
                     ->sortable(),
@@ -92,22 +105,6 @@ class LocationResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\Filter::make('created_at')
-                    ->form([
-                        Forms\Components\DatePicker::make('created_from'),
-                        Forms\Components\DatePicker::make('created_until'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['created_from'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
-                            )
-                            ->when(
-                                $data['created_until'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
-                            );
-                    }),
                 Tables\Filters\SelectFilter::make('country_id')
                     ->relationship('country', 'name')
                     ->searchable()
@@ -118,6 +115,8 @@ class LocationResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('City'),
+                Tables\Filters\SelectFilter::make('source')
+                    ->options(LocationSource::class),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

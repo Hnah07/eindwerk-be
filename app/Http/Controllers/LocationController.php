@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Location;
 use App\Models\Country;
+use App\Enums\LocationSource;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
@@ -33,6 +34,7 @@ class LocationController extends Controller
      *                 type="object",
      *                 @OA\Property(property="id", type="integer", example=1),
      *                 @OA\Property(property="name", type="string", example="Royal Concert Hall"),
+     *                 @OA\Property(property="source", type="string", enum={"manual", "api"}, example="manual"),
      *                 @OA\Property(property="longitude", type="number", format="float", example=4.4041),
      *                 @OA\Property(property="latitude", type="number", format="float", example=51.2194),
      *                 @OA\Property(property="street", type="string", example="Koningstraat"),
@@ -69,7 +71,7 @@ class LocationController extends Controller
         }
 
         $locations = $query->get();
-        return response()->json($locations);
+        return response()->json($locations->makeHidden(['created_at', 'updated_at']));
     }
 
     /**
@@ -86,6 +88,13 @@ class LocationController extends Controller
      *                 type="string",
      *                 example="Royal Concert Hall",
      *                 description="Name of the location (required)"
+     *             ),
+     *             @OA\Property(
+     *                 property="source",
+     *                 type="string",
+     *                 enum={"manual", "api"},
+     *                 example="manual",
+     *                 description="Source of the location (defaults to manual)"
      *             ),
      *             @OA\Property(
      *                 property="longitude",
@@ -148,6 +157,7 @@ class LocationController extends Controller
      *             type="object",
      *             @OA\Property(property="id", type="integer", example=1),
      *             @OA\Property(property="name", type="string", example="Royal Concert Hall"),
+     *             @OA\Property(property="source", type="string", enum={"manual", "api"}, example="manual"),
      *             @OA\Property(property="longitude", type="number", format="float", example=4.4041),
      *             @OA\Property(property="latitude", type="number", format="float", example=51.2194),
      *             @OA\Property(property="street", type="string", example="Koningstraat"),
@@ -194,6 +204,7 @@ class LocationController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
+            'source' => 'sometimes|required|string|in:manual,api',
             'longitude' => 'required|numeric',
             'latitude' => 'required|numeric',
             'street' => 'required|string|max:255',
@@ -208,7 +219,12 @@ class LocationController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $location = Location::create($request->all());
+        $data = $request->all();
+        if (!isset($data['source'])) {
+            $data['source'] = LocationSource::MANUAL->value;
+        }
+
+        $location = Location::create($data);
         return response()->json($location->load('country')->makeHidden(['created_at', 'updated_at']), 201);
     }
 
@@ -231,6 +247,7 @@ class LocationController extends Controller
      *             type="object",
      *             @OA\Property(property="id", type="integer", example=1),
      *             @OA\Property(property="name", type="string", example="Royal Concert Hall"),
+     *             @OA\Property(property="source", type="string", enum={"manual", "api"}, example="manual"),
      *             @OA\Property(property="longitude", type="number", format="float", example=4.4041),
      *             @OA\Property(property="latitude", type="number", format="float", example=51.2194),
      *             @OA\Property(property="street", type="string", example="Koningstraat"),
@@ -256,7 +273,7 @@ class LocationController extends Controller
      */
     public function show(Location $location): JsonResponse
     {
-        return response()->json($location->load('country'));
+        return response()->json($location->load('country')->makeHidden(['created_at', 'updated_at']));
     }
 
     /**
@@ -279,6 +296,13 @@ class LocationController extends Controller
      *                 type="string",
      *                 example="Royal Concert Hall",
      *                 description="Name of the location (optional)"
+     *             ),
+     *             @OA\Property(
+     *                 property="source",
+     *                 type="string",
+     *                 enum={"manual", "api"},
+     *                 example="manual",
+     *                 description="Source of the location (optional)"
      *             ),
      *             @OA\Property(
      *                 property="longitude",
@@ -341,6 +365,7 @@ class LocationController extends Controller
      *             type="object",
      *             @OA\Property(property="id", type="integer", example=1),
      *             @OA\Property(property="name", type="string", example="Royal Concert Hall"),
+     *             @OA\Property(property="source", type="string", enum={"manual", "api"}, example="manual"),
      *             @OA\Property(property="longitude", type="number", format="float", example=4.4041),
      *             @OA\Property(property="latitude", type="number", format="float", example=51.2194),
      *             @OA\Property(property="street", type="string", example="Koningstraat"),
@@ -373,6 +398,7 @@ class LocationController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|required|string|max:255',
+            'source' => 'sometimes|required|string|in:manual,api',
             'longitude' => 'sometimes|required|numeric',
             'latitude' => 'sometimes|required|numeric',
             'street' => 'sometimes|required|string|max:255',

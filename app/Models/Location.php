@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\LocationSource;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,6 +12,7 @@ class Location extends Model
 
     protected $fillable = [
         'name',
+        'source',
         'longitude',
         'latitude',
         'street',
@@ -19,6 +21,10 @@ class Location extends Model
         'city',
         'website',
         'country_id'
+    ];
+
+    protected $casts = [
+        'source' => LocationSource::class,
     ];
 
     protected $hidden = [
