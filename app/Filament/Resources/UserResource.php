@@ -103,6 +103,15 @@ class UserResource extends Resource
                         UserRole::SUPERUSER->value => UserRole::SUPERUSER->label(),
                         UserRole::USER->value => UserRole::USER->label(),
                     ]),
+                Tables\Filters\TernaryFilter::make('isActive')
+                    ->label('Active Status')
+                    ->placeholder('All Users')
+                    ->trueLabel('Active Users')
+                    ->falseLabel('Inactive Users')
+                    ->queries(
+                        true: fn(Builder $query) => $query->where('isActive', true),
+                        false: fn(Builder $query) => $query->where('isActive', false),
+                    ),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
