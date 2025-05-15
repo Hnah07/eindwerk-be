@@ -26,8 +26,7 @@ use Illuminate\Support\Facades\Hash;
  *     @OA\Property(property="longitude", type="number", format="float", nullable=true),
  *     @OA\Property(property="is_active", type="boolean"),
  *     @OA\Property(property="role", type="string", enum={"admin", "superuser", "user"}),
- *     @OA\Property(property="created_at", type="string", format="date-time"),
- *     @OA\Property(property="updated_at", type="string", format="date-time")
+ *     @OA\Property(property="created_at", type="string", format="date-time")
  * )
  */
 class UserController extends Controller
