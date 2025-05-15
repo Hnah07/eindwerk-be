@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ConcertSource;
+use App\Enums\ConcertStatus;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreConcertRequest extends FormRequest
@@ -24,7 +26,12 @@ class StoreConcertRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'date' => 'required|date'
+            'year' => 'required|integer|min:1900|max:2100',
+            'type' => 'required|string|in:concert,festival,dj set,club show,theater show',
+            'source' => 'required|string|in:' . implode(',', array_column(ConcertSource::cases(), 'value')),
+            'status' => 'required|string|in:' . implode(',', array_column(ConcertStatus::cases(), 'value')),
+            'date' => 'required|date',
+            'location_id' => 'required|exists:locations,id'
         ];
     }
 }

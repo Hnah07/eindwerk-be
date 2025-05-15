@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\ConcertSource;
+use App\Enums\ConcertStatus;
 use App\Filament\Resources\ConcertResource\Pages;
 use App\Filament\Resources\ConcertResource\RelationManagers;
 use App\Models\Concert;
@@ -39,6 +41,19 @@ class ConcertResource extends Resource
                         'dj set' => 'DJ Set',
                         'club show' => 'Club Show',
                         'theater show' => 'Theater Show',
+                    ]),
+                Forms\Components\Select::make('source')
+                    ->required()
+                    ->options([
+                        ConcertSource::MANUAL->value => 'Manual',
+                        ConcertSource::API->value => 'API',
+                    ]),
+                Forms\Components\Select::make('status')
+                    ->required()
+                    ->options([
+                        ConcertStatus::PENDING_APPROVAL->value => 'Pending Approval',
+                        ConcertStatus::VERIFIED->value => 'Verified',
+                        ConcertStatus::REJECTED->value => 'Rejected',
                     ]),
                 Forms\Components\Textarea::make('description')
                     ->required()
@@ -110,12 +125,44 @@ class ConcertResource extends Resource
                 Tables\Columns\TextColumn::make('type')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('description')
-                    ->limit(50),
+                Tables\Columns\TextColumn::make('source')
+                    ->badge()
+                    ->color(fn(ConcertSource $state): string => match ($state) {
+                        ConcertSource::MANUAL => 'gray',
+                        ConcertSource::API => 'success',
+                    }),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn(ConcertStatus $state): string => match ($state) {
+                        ConcertStatus::PENDING_APPROVAL => 'warning',
+                        ConcertStatus::VERIFIED => 'success',
+                        ConcertStatus::REJECTED => 'danger',
+                    }),
                 Tables\Columns\TextColumn::make('locations.name')
                     ->label('Location')
-                    ->sortable()
-                    ->searchable(),
+                    ->formatStateUsing(function ($state, $record) {
+                        if (!$record->locations->count()) {
+                            return '-';
+                        }
+
+                        $totalLocations = $record->locations->count();
+                        $firstLocation = $record->locations->first()->name;
+
+                        if ($totalLocations === 1) {
+                            return $firstLocation;
+                        }
+
+                        return $firstLocation . ' (+' . ($totalLocations - 1) . ' more)';
+                    })
+                    ->tooltip(function ($record) {
+                        if (!$record->locations->count()) {
+                            return null;
+                        }
+
+                        return $record->locations
+                            ->pluck('name')
+                            ->join("\n");
+                    }),
                 Tables\Columns\TextColumn::make('occurrences.date')
                     ->label('Dates')
                     ->sortable()
@@ -144,6 +191,14 @@ class ConcertResource extends Resource
                             ->map(fn($occurrence) => date('d/m/Y', strtotime($occurrence->date)))
                             ->join("\n");
                     }),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
@@ -153,6 +208,19 @@ class ConcertResource extends Resource
                         'dj set' => 'DJ Set',
                         'club show' => 'Club Show',
                         'theater show' => 'Theater Show',
+                    ])
+                    ->multiple(),
+                Tables\Filters\SelectFilter::make('source')
+                    ->options([
+                        ConcertSource::MANUAL->value => 'Manual',
+                        ConcertSource::API->value => 'API',
+                    ])
+                    ->multiple(),
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        ConcertStatus::PENDING_APPROVAL->value => 'Pending Approval',
+                        ConcertStatus::VERIFIED->value => 'Verified',
+                        ConcertStatus::REJECTED->value => 'Rejected',
                     ])
                     ->multiple(),
                 Tables\Filters\Filter::make('year')
@@ -190,8 +258,8 @@ class ConcertResource extends Resource
                 Tables\Filters\SelectFilter::make('location')
                     ->relationship('locations', 'name')
                     ->multiple()
-                    ->preload() // load all locations by refreshing the page, remove when there are too many locations
                     ->searchable()
+                    ->preload(false),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

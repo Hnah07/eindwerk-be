@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\ConcertSource;
+use App\Enums\ConcertStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,7 +16,19 @@ class Concert extends Model
         'name',
         'description',
         'year',
-        'type'
+        'type',
+        'source',
+        'status'
+    ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at'
+    ];
+
+    protected $casts = [
+        'source' => ConcertSource::class,
+        'status' => ConcertStatus::class,
     ];
 
     public function locations()

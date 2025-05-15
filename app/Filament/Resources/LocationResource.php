@@ -7,6 +7,7 @@ use App\Filament\Resources\LocationResource\RelationManagers;
 use App\Models\Location;
 use App\Models\Country;
 use App\Enums\LocationSource;
+use App\Enums\LocationStatus;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -33,6 +34,11 @@ class LocationResource extends Resource
                     ->options(LocationSource::class)
                     ->required()
                     ->default(LocationSource::MANUAL),
+                Forms\Components\Select::make('status')
+                    ->enum(LocationStatus::class)
+                    ->options(LocationStatus::class)
+                    ->required()
+                    ->default(LocationStatus::VERIFIED),
                 Forms\Components\TextInput::make('longitude')
                     ->required()
                     ->numeric(),
@@ -76,6 +82,14 @@ class LocationResource extends Resource
                         LocationSource::API => 'success',
                     })
                     ->sortable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn(LocationStatus $state): string => match ($state) {
+                        LocationStatus::PENDING_APPROVAL => 'warning',
+                        LocationStatus::VERIFIED => 'success',
+                        LocationStatus::REJECTED => 'danger',
+                    })
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('longitude')
                     ->numeric()
                     ->sortable(),
@@ -117,6 +131,8 @@ class LocationResource extends Resource
                     ->label('City'),
                 Tables\Filters\SelectFilter::make('source')
                     ->options(LocationSource::class),
+                Tables\Filters\SelectFilter::make('status')
+                    ->options(LocationStatus::class),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

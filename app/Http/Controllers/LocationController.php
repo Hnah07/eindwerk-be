@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Location;
 use App\Models\Country;
 use App\Enums\LocationSource;
+use App\Enums\LocationStatus;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
@@ -223,6 +224,13 @@ class LocationController extends Controller
         $data = $request->all();
         if (!isset($data['source'])) {
             $data['source'] = LocationSource::MANUAL->value;
+        }
+
+        // Set status based on whether the request is coming from Filament (admin) or API (user)
+        // If the request has a status field, it's coming from Filament (admin)
+        // Otherwise, it's coming from the API (user) and should be pending approval
+        if (!isset($data['status'])) {
+            $data['status'] = LocationStatus::PENDING_APPROVAL->value;
         }
 
         $location = Location::create($data);
