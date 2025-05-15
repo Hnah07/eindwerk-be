@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\UserRole;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
@@ -17,12 +18,20 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+                Forms\Components\Select::make('role')
+                    ->options([
+                        UserRole::ADMIN->value => UserRole::ADMIN->label(),
+                        UserRole::SUPERUSER->value => UserRole::SUPERUSER->label(),
+                        UserRole::USER->value => UserRole::USER->label(),
+                    ])
+                    ->required()
+                    ->default(UserRole::USER->value),
                 Forms\Components\TextInput::make('username')
                     ->required()
                     ->maxLength(255),
@@ -55,6 +64,15 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('role')
+                    ->badge()
+                    ->color(fn(UserRole $state): string => match ($state) {
+                        UserRole::ADMIN => 'danger',
+                        UserRole::SUPERUSER => 'warning',
+                        UserRole::USER => 'success',
+                    })
+                    ->formatStateUsing(fn(UserRole $state): string => $state->label())
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('username')
                     ->searchable()
                     ->sortable(),
@@ -66,16 +84,6 @@ class UserResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('email_verified_at')
                     ->dateTime()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('profilePicture')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('bio')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('longitude')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('latitude')
-                    ->numeric()
                     ->sortable(),
                 Tables\Columns\IconColumn::make('isActive')
                     ->boolean(),
@@ -89,7 +97,12 @@ class UserResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('role')
+                    ->options([
+                        UserRole::ADMIN->value => UserRole::ADMIN->label(),
+                        UserRole::SUPERUSER->value => UserRole::SUPERUSER->label(),
+                        UserRole::USER->value => UserRole::USER->label(),
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
