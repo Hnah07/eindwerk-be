@@ -10,6 +10,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use App\Enums\UserRole;
+use Filament\Panel;
 
 class User extends Authenticatable
 {
@@ -86,5 +87,10 @@ class User extends Authenticatable
     public function isRegularUser(): bool
     {
         return $this->role === UserRole::USER;
+    }
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // Only allow users with the 'admin' role
+        return $this->role === 'admin';
     }
 }
