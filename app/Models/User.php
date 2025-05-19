@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use App\Enums\UserRole;
 
 class User extends Authenticatable
 {
@@ -29,6 +30,12 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'username',
+        'bio',
+        'latitude',
+        'longitude',
+        'is_active',
+        'role',
     ];
 
     /**
@@ -62,6 +69,22 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => UserRole::class,
         ];
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === UserRole::ADMIN;
+    }
+
+    public function isSuperUser(): bool
+    {
+        return $this->role === UserRole::SUPERUSER;
+    }
+
+    public function isRegularUser(): bool
+    {
+        return $this->role === UserRole::USER;
     }
 }
