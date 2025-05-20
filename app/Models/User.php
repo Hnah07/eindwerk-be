@@ -11,8 +11,9 @@ use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use App\Enums\UserRole;
 use Filament\Panel;
+use Filament\Models\Contracts\FilamentUser;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     use HasApiTokens;
 
@@ -88,9 +89,10 @@ class User extends Authenticatable
     {
         return $this->role === UserRole::USER;
     }
+
     public function canAccessPanel(Panel $panel): bool
     {
         // Only allow users with the 'admin' role
-        return $this->role->value === "admin";
+        return $this->role === UserRole::ADMIN;
     }
 }
