@@ -87,4 +87,10 @@ class User extends Authenticatable
     {
         return $this->role === UserRole::USER;
     }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // Only allow users with the 'admin' role
+        return $this->role === UserRole::ADMIN;
+    }
 }
