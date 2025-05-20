@@ -27,7 +27,6 @@ class ArtistResource extends Resource
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('description')
-                    ->required()
                     ->maxLength(255),
                 Forms\Components\Select::make('country_id')
                     ->relationship('country', 'name')
