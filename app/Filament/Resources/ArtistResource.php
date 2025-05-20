@@ -38,10 +38,15 @@ class ArtistResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('name')
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\TextColumn::make('description'),
-                Tables\Columns\TextColumn::make('country.name'),
+                Tables\Columns\TextColumn::make('name')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('description')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('country.name')
+                    ->sortable(),
                 Tables\Columns\ImageColumn::make('image_url'),
             ])
             ->filters([
