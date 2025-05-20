@@ -19,5 +19,5 @@ Route::get('/user', function (Request $request) {
 
 // -> kortere route
 Route::apiResource('concerts', ConcertController::class)->only(['index', 'store', 'show', 'destroy', 'update']);
-Route::apiResource('users', UserController::class)->only(['index', 'store', 'show', 'destroy', 'update']);
+//Route::apiResource('users', UserController::class)->only(['index', 'store', 'show', 'destroy', 'update']);
 Route::apiResource('locations', LocationController::class);
