@@ -23,7 +23,17 @@ class ArtistResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('description')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\Select::make('country_id')
+                    ->relationship('country', 'name')
+                    ->required(),
+                Forms\Components\FileUpload::make('image_url')
+                    ->required(),
             ]);
     }
 
@@ -31,10 +41,14 @@ class ArtistResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('description'),
+                Tables\Columns\TextColumn::make('country.name'),
+                Tables\Columns\ImageColumn::make('image_url'),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('country_id')
+                    ->relationship('country', 'name'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
