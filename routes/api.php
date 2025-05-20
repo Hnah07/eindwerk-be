@@ -17,7 +17,8 @@ Route::get('/user', function (Request $request) {
 // Route::put('/concerts/{id}', [App\Http\Controllers\ConcertController::class, 'update']);
 // Route::delete('/concerts/{id}', [App\Http\Controllers\ConcertController::class, 'destroy']);
 
-// -> kortere route
+// -> kortere routes
+
 Route::apiResource('concerts', ConcertController::class)->only(['index', 'store', 'show', 'destroy', 'update']);
 //Route::apiResource('users', UserController::class)->only(['index', 'store', 'show', 'destroy', 'update']);
-Route::apiResource('locations', LocationController::class);
+Route::apiResource('locations', LocationController::class)->only(['index', 'store', 'show', 'destroy', 'update']);
