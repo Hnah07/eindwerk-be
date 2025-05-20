@@ -22,16 +22,16 @@ class ArtistController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
-     *         name="country_id",
+     *         name="country",
      *         in="query",
-     *         description="Filter artists by country ID",
+     *         description="Filter artists by country name (partial match)",
      *         required=false,
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
      *         name="sort",
      *         in="query",
-     *         description="Sort artists by field (name, country_id) and direction (asc, desc). Example: name:asc",
+     *         description="Sort artists by field (name, country.name) and direction (asc, desc). Example: name:asc",
      *         required=false,
      *         @OA\Schema(type="string")
      *     ),
@@ -71,8 +71,10 @@ class ArtistController extends Controller
             $query->where('name', 'like', '%' . $request->name . '%');
         }
 
-        if ($request->filled('country_id')) {
-            $query->where('country_id', $request->country_id);
+        if ($request->filled('country')) {
+            $query->whereHas('country', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->country . '%');
+            });
         }
 
         if ($request->filled('sort')) {
@@ -80,14 +82,20 @@ class ArtistController extends Controller
             $field = $sortParts[0];
             $direction = $sortParts[1] ?? 'asc';
 
-            if (in_array($field, ['name', 'country_id']) && in_array($direction, ['asc', 'desc'])) {
+            if ($field === 'country.name') {
+                $query->join('countries', 'artists.country_id', '=', 'countries.id')
+                    ->orderBy('countries.name', $direction)
+                    ->select('artists.*');
+            } elseif (in_array($field, ['name']) && in_array($direction, ['asc', 'desc'])) {
                 $query->orderBy($field, $direction);
             }
         } else {
             $query->orderBy('name', 'asc');
         }
 
-        $artists = $query->with('country:id,name')->get();
+        $artists = $query->with('country:id,name')
+            ->get()
+            ->makeHidden(['country_id']);
 
         return response()->json([
             'data' => $artists
@@ -142,8 +150,13 @@ class ArtistController extends Controller
      *                 @OA\Property(property="id", type="integer"),
      *                 @OA\Property(property="name", type="string"),
      *                 @OA\Property(property="description", type="string", nullable=true),
-     *                 @OA\Property(property="country_id", type="integer"),
      *                 @OA\Property(property="image_url", type="string", nullable=true),
+     *                 @OA\Property(
+     *                     property="country",
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer"),
+     *                     @OA\Property(property="name", type="string")
+     *                 ),
      *                 @OA\Property(property="created_at", type="string", format="date-time"),
      *                 @OA\Property(property="updated_at", type="string", format="date-time")
      *             )
@@ -169,6 +182,8 @@ class ArtistController extends Controller
         }
 
         $artist = Artist::create($request->all());
+        $artist->load('country:id,name');
+        $artist->makeHidden(['country_id']);
 
         return response()->json([
             'message' => 'Artist created successfully',
@@ -215,7 +230,9 @@ class ArtistController extends Controller
      */
     public function show(int $id): JsonResponse
     {
-        $artist = Artist::with('country:id,name')->findOrFail($id);
+        $artist = Artist::with('country:id,name')
+            ->findOrFail($id)
+            ->makeHidden(['country_id']);
         return response()->json($artist);
     }
 
@@ -273,8 +290,13 @@ class ArtistController extends Controller
      *                 @OA\Property(property="id", type="integer"),
      *                 @OA\Property(property="name", type="string"),
      *                 @OA\Property(property="description", type="string", nullable=true),
-     *                 @OA\Property(property="country_id", type="integer"),
      *                 @OA\Property(property="image_url", type="string", nullable=true),
+     *                 @OA\Property(
+     *                     property="country",
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer"),
+     *                     @OA\Property(property="name", type="string")
+     *                 ),
      *                 @OA\Property(property="created_at", type="string", format="date-time"),
      *                 @OA\Property(property="updated_at", type="string", format="date-time")
      *             )
@@ -306,6 +328,8 @@ class ArtistController extends Controller
         }
 
         $artist->update($request->all());
+        $artist->load('country:id,name');
+        $artist->makeHidden(['country_id']);
 
         return response()->json([
             'message' => 'Artist updated successfully',

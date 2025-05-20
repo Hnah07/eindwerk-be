@@ -24,18 +24,18 @@
                         }
                     },
                     {
-                        "name": "country_id",
+                        "name": "country",
                         "in": "query",
-                        "description": "Filter artists by country ID",
+                        "description": "Filter artists by country name (partial match)",
                         "required": false,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {
                         "name": "sort",
                         "in": "query",
-                        "description": "Sort artists by field (name, country_id) and direction (asc, desc). Example: name:asc",
+                        "description": "Sort artists by field (name, country.name) and direction (asc, desc). Example: name:asc",
                         "required": false,
                         "schema": {
                             "type": "string"
@@ -163,12 +163,20 @@
                                                     "type": "string",
                                                     "nullable": true
                                                 },
-                                                "country_id": {
-                                                    "type": "integer"
-                                                },
                                                 "image_url": {
                                                     "type": "string",
                                                     "nullable": true
+                                                },
+                                                "country": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer"
+                                                        },
+                                                        "name": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "type": "object"
                                                 },
                                                 "created_at": {
                                                     "type": "string",
@@ -334,12 +342,20 @@
                                                     "type": "string",
                                                     "nullable": true
                                                 },
-                                                "country_id": {
-                                                    "type": "integer"
-                                                },
                                                 "image_url": {
                                                     "type": "string",
                                                     "nullable": true
+                                                },
+                                                "country": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer"
+                                                        },
+                                                        "name": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "type": "object"
                                                 },
                                                 "created_at": {
                                                     "type": "string",
