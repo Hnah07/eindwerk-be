@@ -31,8 +31,7 @@ class ArtistResource extends Resource
                 Forms\Components\Select::make('country_id')
                     ->relationship('country', 'name')
                     ->required(),
-                Forms\Components\FileUpload::make('image_url')
-                    ->required(),
+                Forms\Components\FileUpload::make('image_url'),
             ]);
     }
 
